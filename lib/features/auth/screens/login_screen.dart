@@ -38,13 +38,6 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      
-      if (!mounted) return;
-      
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LobbyScreen()),
-      );
     } on AuthException catch (e) {
       if (!mounted) return;
       String errorMessage = 'Ocurrió un error inesperado';

@@ -1,24 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:stadia/features/lobby/screens/home_tab.dart';
+import 'package:stadia/features/profile/screens/profile_tab.dart';
+import 'package:stadia/features/settings/screens/settings_screen.dart';
+import 'package:stadia/core/widgets/protected_route.dart';
 
-class LobbyScreen extends StatelessWidget {
+class LobbyScreen extends StatefulWidget {
   const LobbyScreen({super.key});
 
   @override
+  State<LobbyScreen> createState() => _LobbyScreenState();
+}
+
+class _LobbyScreenState extends State<LobbyScreen> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _tabs = const [
+    HomeTab(),
+    ProfileTab(),
+    SettingsScreen(),
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    final userEmail = Supabase.instance.client.auth.currentUser?.email ?? 'Desconocido';
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Stadia'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: Center(
-        child: Text(
-          'Usuario ingresó exitosamente\n$userEmail',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
+    return ProtectedRoute(
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _tabs,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          selectedItemColor: Theme.of(context).colorScheme.onSurface,
+          unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Inicio',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'Perfil',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings),
+              label: 'Ajustes',
+            ),
+          ],
         ),
       ),
     );
