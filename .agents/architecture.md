@@ -1,6 +1,6 @@
 # Arquitectura del Proyecto: Clean Architecture + Vertical Slicing
 
-Este documento describe la arquitectura utilizada en el proyecto **Spoti**. Está diseñado para contextualizar a los modelos de IA sobre cómo deben gestionar la comunicación y el flujo de archivos a nivel de proyecto.
+Este documento describe la arquitectura utilizada en el proyecto **Stadia**. Está diseñado para contextualizar a los modelos de IA sobre cómo deben gestionar la comunicación y el flujo de archivos a nivel de proyecto.
 
 ## Principios Fundamentales
 El proyecto combina dos enfoques arquitectónicos poderosos:
