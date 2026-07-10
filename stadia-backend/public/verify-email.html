@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stadia - Confirmar cuenta</title>
+<style>
+  body { font-family: -apple-system, Arial, sans-serif; background: #fff; color: #000;
+         display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .card { max-width: 380px; width: 100%; padding: 24px; text-align: center; }
+  h1 { font-size: 22px; margin-bottom: 8px; }
+  p { color: #444; font-size: 14px; }
+  button { width: 100%; padding: 14px; margin-top: 16px; background: #000; color: #fff;
+           border: none; font-size: 15px; cursor: pointer; }
+  button:disabled { background: #999; }
+  #msg { margin-top: 14px; font-size: 14px; }
+  .error { color: #c00; }
+  .success { color: #060; }
+  #openApp { display:none; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Stadia</h1>
+  <p id="subtitle">¿Deseas confirmar tu cuenta?</p>
+  <button id="confirmBtn">Sí, confirmar mi cuenta</button>
+  <div id="msg"></div>
+  <a id="openApp" href="stadia://login"><button style="margin-top:10px;">Abrir Stadia</button></a>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const supabase = createClient(
+    'https://hbsraxrbdfddakfgfvjc.supabase.co',
+    'sb_publishable_bnET93B_eqY-mRbLHVAbEA_rCh0s50z'
+  );
+
+  const msg = document.getElementById('msg');
+  const subtitle = document.getElementById('subtitle');
+  const confirmBtn = document.getElementById('confirmBtn');
+
+  const params = new URLSearchParams(window.location.search);
+  const token_hash = params.get('token_hash');
+  const type = params.get('type') || 'signup';
+
+  if (!token_hash) {
+    subtitle.textContent = 'Link inválido o incompleto.';
+    confirmBtn.style.display = 'none';
+  }
+
+  confirmBtn.addEventListener('click', async () => {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Confirmando...';
+    const { error } = await supabase.auth.verifyOtp({ token_hash, type });
+    if (error) {
+      subtitle.textContent = 'Este link ya expiró o ya fue usado.';
+      confirmBtn.style.display = 'none';
+      msg.innerHTML = '<span class="error">Solicita un nuevo correo desde la app.</span>';
+      return;
+    }
+    confirmBtn.style.display = 'none';
+    subtitle.textContent = 'Cuenta confirmada correctamente.';
+    msg.innerHTML = '<span class="success">Ya puedes iniciar sesión.</span>';
+    const isMobile = /Android|iPhone/i.test(navigator.userAgent);
+    if (isMobile) document.getElementById('openApp').style.display = 'block';
+  });
+</script>
+</body>
+</html>
