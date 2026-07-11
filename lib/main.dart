@@ -4,6 +4,8 @@ import 'package:stadia/core/auth_gate.dart';
 import 'package:stadia/core/services/theme_service.dart';
 import 'package:provider/provider.dart';
 import 'package:stadia/core/providers/user_provider.dart';
+import 'package:stadia/features/discovery/presentation/providers/discovery_provider.dart';
+import 'package:stadia/features/discovery/data/repositories/discovery_repository_impl.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +24,11 @@ class StadiaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<UserProvider>(
-      create: (_) => UserProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
+        ChangeNotifierProvider<DiscoveryProvider>(create: (_) => DiscoveryProvider(DiscoveryRepositoryImpl())),
+      ],
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: ThemeService.themeNotifier,
         builder: (context, currentMode, _) {

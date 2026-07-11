@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stadia/features/lobby/screens/home_tab.dart';
 import 'package:stadia/features/profile/screens/profile_tab.dart';
 import 'package:stadia/features/settings/screens/settings_screen.dart';
+import 'package:stadia/features/discovery/presentation/screens/discovery_screen.dart';
 import 'package:stadia/core/widgets/protected_route.dart';
 
 class LobbyScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   final List<Widget> _tabs = const [
     HomeTab(),
+    DiscoveryScreen(),
     ProfileTab(),
     SettingsScreen(),
   ];
@@ -38,12 +40,17 @@ class _LobbyScreenState extends State<LobbyScreen> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           selectedItemColor: Theme.of(context).colorScheme.onSurface,
-          unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+          unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
               label: 'Inicio',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.explore_outlined),
+              activeIcon: Icon(Icons.explore),
+              label: 'Explorar',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
