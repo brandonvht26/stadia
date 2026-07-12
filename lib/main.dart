@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:stadia/core/auth_gate.dart';
 import 'package:stadia/core/services/theme_service.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,10 @@ Future<void> main() async {
     url: 'https://hbsraxrbdfddakfgfvjc.supabase.co',
     anonKey: 'sb_publishable_bnET93B_eqY-mRbLHVAbEA_rCh0s50z',
   );
+  
+  Stripe.publishableKey = 'pk_test_51SrOQLQ8v7gr7pzmmqIYBS0sXaMlAIzXyAqiYQndC9dyQzTVoGdMKBgmhBtXEY3KhrP6iTLKtCy4fgAztR3DUM0O009SWC2FCL';
+  await Stripe.instance.applySettings();
+
   await ThemeService.loadTheme();
   runApp(const StadiaApp());
 }

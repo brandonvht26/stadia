@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/reception_entity.dart';
+import '../../../reservations/presentation/screens/booking_screen.dart';
 
 // Widget que renderiza una recepción a pantalla completa,
 // soportando un carrusel de imágenes horizontal.
@@ -179,6 +180,21 @@ class _ReceptionCardState extends State<ReceptionCard> {
                       isLiked: widget.reception.isLikedByUser,
                       likesCount: widget.reception.likesCount,
                       onTap: widget.onLikeToggle,
+                    ),
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BookingScreen.route(
+                              receptionId: widget.reception.id,
+                              basePrice: widget.reception.basePrice,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('Reservar'),
                     ),
                   ],
                 ),

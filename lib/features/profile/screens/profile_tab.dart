@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:stadia/core/providers/user_provider.dart';
 import 'package:stadia/core/widgets/protected_route.dart';
 import 'package:stadia/core/providers/user_provider.dart';
+import '../../my_reservations/presentation/screens/my_reservations_screen.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -222,6 +223,24 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => MyReservationsScreen.route()),
+                      );
+                    },
+                    icon: const Icon(Icons.history, color: Colors.black),
+                    label: const Text('Ver Mis Reservas', style: TextStyle(color: Colors.black)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(color: Colors.black26),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
