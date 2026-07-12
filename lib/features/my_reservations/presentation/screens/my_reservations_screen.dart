@@ -12,7 +12,7 @@ class MyReservationsScreen extends StatefulWidget {
     return ChangeNotifierProvider(
       create: (context) {
         final provider = MyReservationsProvider(MyReservationsRepositoryImpl());
-        provider.loadReservations();
+        Future.microtask(() => provider.loadReservations());
         return provider;
       },
       child: const MyReservationsScreen(),

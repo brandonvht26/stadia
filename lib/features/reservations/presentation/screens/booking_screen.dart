@@ -19,7 +19,7 @@ class BookingScreen extends StatefulWidget {
     return ChangeNotifierProvider(
       create: (context) {
         final provider = BookingProvider(ReservationsRepositoryImpl());
-        provider.initForReception(receptionId, basePrice);
+        Future.microtask(() => provider.initForReception(receptionId, basePrice));
         return provider;
       },
       child: BookingScreen(receptionId: receptionId, basePrice: basePrice),
