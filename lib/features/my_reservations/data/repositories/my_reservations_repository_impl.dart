@@ -23,7 +23,8 @@ class MyReservationsRepositoryImpl implements MyReservationsRepository {
             total_amount,
             status,
             receptions (
-              title
+              title,
+              host_id
             )
           ''')
           .eq('user_id', userId)
@@ -53,12 +54,14 @@ class MyReservationsRepositoryImpl implements MyReservationsRepository {
       return data.map((json) {
         final recData = json['receptions'] as Map<String, dynamic>?;
         final title = recData != null ? recData['title'] as String : 'Recepción desconocida';
+        final hostId = recData != null ? recData['host_id'] as String : '';
         final recId = json['reception_id'] as String;
 
         return ReservationEntity(
           id: json['id'] as String,
           receptionId: recId,
           receptionTitle: title,
+          hostId: hostId,
           eventDate: DateTime.parse(json['event_date'].toString()),
           totalAmount: (json['total_amount'] as num).toDouble(),
           status: json['status'] as String,

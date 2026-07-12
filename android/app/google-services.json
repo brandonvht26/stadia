@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "853398636761",
+    "project_id": "stadia-049",
+    "storage_bucket": "stadia-049.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853398636761:android:906ad096b3f231f34116c8",
+        "android_client_info": {
+          "package_name": "com.stadia.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXylo-141VgendbZTHQi7CvbIA88vUoQM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

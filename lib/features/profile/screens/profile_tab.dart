@@ -9,6 +9,7 @@ import 'package:stadia/core/widgets/protected_route.dart';
 import '../../my_reservations/presentation/screens/my_reservations_screen.dart';
 import '../../host/presentation/screens/my_receptions_screen.dart';
 import '../../host/presentation/screens/bank_account_screen.dart';
+import '../../chat/presentation/screens/inbox_screen.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -226,6 +227,24 @@ class _ProfileTabState extends State<ProfileTab> {
                   ],
                 ),
                 const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => InboxScreen.route()),
+                      );
+                    },
+                    icon: const Icon(Icons.inbox, color: Colors.black),
+                    label: const Text('Mensajes', style: TextStyle(color: Colors.black)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(color: Colors.black26),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(

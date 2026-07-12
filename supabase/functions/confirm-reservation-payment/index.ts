@@ -97,6 +97,17 @@ serve(async (req) => {
       });
     }
 
+    // Notificar al usuario que su reserva fue confirmada exitosamente
+    await supabaseAdmin.functions.invoke("send-push", {
+      headers: { Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
+      body: {
+        userId: user.id,
+        title: "¡Reserva Confirmada!",
+        body: "Tu reserva ha sido confirmada exitosamente.",
+        data: { type: "reservation_confirmed", reservationId },
+      },
+    });
+
     return new Response(JSON.stringify({ success: true, status: "confirmed" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

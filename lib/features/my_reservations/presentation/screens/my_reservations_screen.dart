@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../data/repositories/my_reservations_repository_impl.dart';
 import '../providers/my_reservations_provider.dart';
 import '../../../reviews/presentation/screens/review_screen.dart';
+import '../../../chat/data/repositories/chat_repository_impl.dart';
+import '../../../chat/presentation/screens/chat_thread_screen.dart';
 
 class MyReservationsScreen extends StatefulWidget {
   const MyReservationsScreen({super.key});
@@ -203,6 +205,51 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                                 label: const Text('Dejar reseña'),
                               ),
                             ),
+                        ],
+                        
+                        // Botón de Chat (siempre que no esté cancelada)
+                        if (reservation.status != 'cancelled') ...[
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                try {
+                                  // Mostrar un indicador de carga si lo deseas, aquí es sincrónico pero getOrCreateChat toma tiempo
+                                  final chatRepo = ChatRepositoryImpl();
+                                  final chatId = await chatRepo.getOrCreateChat(
+                                    receptionId: reservation.receptionId,
+                                    hostId: reservation.hostId,
+                                  );
+                                  
+                                  if (context.mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ChatThreadScreen.route(
+                                          chatId: chatId,
+                                          // Como no tenemos el nombre del host aquí, enviamos un placeholder o el título de la recepción
+                                          otherParticipantName: 'Chat de ${reservation.receptionTitle}',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error al iniciar chat: $e')),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(Icons.chat_bubble_outline),
+                              label: const Text('Chatear con el host'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                          ),
                         ],
                       ],
                     ),

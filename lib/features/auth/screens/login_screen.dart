@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:stadia/features/lobby/screens/lobby_screen.dart';
 import 'package:stadia/features/auth/screens/register_screen.dart';
 import 'package:stadia/features/auth/screens/reset_password_screen.dart';
+import 'package:stadia/core/services/push_notification_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,6 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+      
+      // Inicializar notificaciones push después de login exitoso
+      PushNotificationService().initialize();
     } on AuthException catch (e) {
       if (!mounted) return;
       String errorMessage = 'Ocurrió un error inesperado';
