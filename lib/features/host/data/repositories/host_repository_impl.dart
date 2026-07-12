@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/bank_account_entity.dart';
+import '../../domain/entities/reception_photo_entity.dart';
 import '../../../discovery/domain/entities/reception_entity.dart';
 import '../../../discovery/data/models/reception_model.dart';
 import '../../domain/entities/new_reception_entity.dart';
@@ -209,6 +210,21 @@ class HostRepositoryImpl implements HostRepository {
       }, onConflict: 'host_id');
     } catch (e) {
       throw Exception('Error al guardar la cuenta bancaria: $e');
+    }
+  }
+
+  @override
+  Future<List<ReceptionPhotoEntity>> getReceptionPhotos(String receptionId) async {
+    try {
+      final response = await _supabase
+          .from('reception_media')
+          .select()
+          .eq('reception_id', receptionId)
+          .order('order_index', ascending: true);
+
+      return (response as List).map((json) => ReceptionPhotoEntity.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Error al obtener las fotos de la recepción: $e');
     }
   }
 }

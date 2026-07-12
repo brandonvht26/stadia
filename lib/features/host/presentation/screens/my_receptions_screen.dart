@@ -3,6 +3,7 @@ import '../../../discovery/domain/entities/reception_entity.dart';
 import '../../data/repositories/host_repository_impl.dart';
 import 'create_reception_screen.dart';
 import 'verification_payment_screen.dart';
+import 'manage_photos_screen.dart';
 
 class MyReceptionsScreen extends StatefulWidget {
   const MyReceptionsScreen({super.key});
@@ -63,27 +64,48 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Precio base: \$${reception.basePrice.toStringAsFixed(2)}'),
-                      if (!reception.isVerified) ...[
-                        const SizedBox(height: 8),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => VerificationPaymentScreen(receptionId: reception.id),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (!reception.isVerified)
+                            ElevatedButton(
+                              onPressed: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => VerificationPaymentScreen(receptionId: reception.id),
+                                  ),
+                                );
+                                if (result == true) {
+                                  _loadReceptions();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                minimumSize: Size.zero,
                               ),
-                            );
-                            if (result == true) {
-                              _loadReceptions();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            minimumSize: Size.zero,
+                              child: const Text('Verificar por \$20'),
+                            ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ManagePhotosScreen.route(receptionId: reception.id),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.photo_library, size: 18),
+                            label: const Text('Gestionar fotos'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              minimumSize: Size.zero,
+                            ),
                           ),
-                          child: const Text('Verificar por \$20'),
-                        ),
-                      ],
+                        ],
+                      ),
                     ],
                   ),
                   trailing: Container(
