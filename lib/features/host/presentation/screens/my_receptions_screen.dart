@@ -32,6 +32,7 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Mis Recepciones'),
       ),
       body: FutureBuilder<List<ReceptionEntity>>(

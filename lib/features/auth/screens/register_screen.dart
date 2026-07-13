@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:stadia/core/services/onboarding_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -34,11 +35,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      await Supabase.instance.client.auth.signUp(
+      final response = await Supabase.instance.client.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         emailRedirectTo: 'https://stadia-theta.vercel.app/verify-email',
       );
+      
+      if (response.user != null) {
+        // ignore: unawaited_futures
+        OnboardingService.syncTermsAccepted(response.user!.id).catchError((e) {
+          debugPrint('Error al sincronizar términos (no crítico): $e');
+        });
+      }
       
       if (!mounted) return;
       

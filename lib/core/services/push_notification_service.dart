@@ -45,6 +45,7 @@ class PushNotificationService {
 
   Future<void> _saveToken(String userId, String token) async {
     try {
+      await Future.delayed(const Duration(milliseconds: 500));
       await Supabase.instance.client.from('device_tokens').upsert(
         {
           'user_id': userId,

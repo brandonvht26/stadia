@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:stadia/features/lobby/screens/home_tab.dart';
+import 'package:stadia/features/my_reservations/presentation/screens/my_reservations_screen.dart';
+import 'package:stadia/features/host/presentation/screens/my_receptions_screen.dart';
+import 'package:stadia/features/chat/presentation/screens/inbox_screen.dart';
 import 'package:stadia/features/profile/screens/profile_tab.dart';
-import 'package:stadia/features/settings/screens/settings_screen.dart';
 import 'package:stadia/features/discovery/presentation/screens/discovery_screen.dart';
 import 'package:stadia/core/widgets/protected_route.dart';
 
@@ -15,11 +16,12 @@ class LobbyScreen extends StatefulWidget {
 class _LobbyScreenState extends State<LobbyScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _tabs = const [
-    HomeTab(),
-    DiscoveryScreen(),
-    ProfileTab(),
-    SettingsScreen(),
+  final List<Widget> _tabs = [
+    const DiscoveryScreen(),
+    MyReservationsScreen.route(),
+    const MyReceptionsScreen(),
+    InboxScreen.route(),
+    const ProfileTab(),
   ];
 
   @override
@@ -43,24 +45,29 @@ class _LobbyScreenState extends State<LobbyScreen> {
           unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Inicio',
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Icons.explore_outlined),
               activeIcon: Icon(Icons.explore),
               label: 'Explorar',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_outlined),
+              activeIcon: Icon(Icons.calendar_month),
+              label: 'Reservas',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.storefront_outlined),
+              activeIcon: Icon(Icons.storefront),
+              label: 'Host',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat_bubble_outline),
+              activeIcon: Icon(Icons.chat_bubble),
+              label: 'Chat',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
               activeIcon: Icon(Icons.person),
               label: 'Perfil',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: 'Ajustes',
             ),
           ],
         ),
