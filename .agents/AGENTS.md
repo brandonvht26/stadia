@@ -20,4 +20,5 @@ El resto del contexto y las guías específicas de desarrollo se encuentran dele
 
 - 🏗️ **Arquitectura (`architecture.md`)**: Define el uso de Clean Architecture + Vertical Slicing. Contiene las reglas sobre cómo fluye la comunicación entre capas y cómo se agrupan los archivos.
 - 🎨 **Patrones UI (`skills/ui/SKILL.md`)**: Define las habilidades, patrones de diseño e interfaces gráficas que seguirá la aplicación para su presentación al usuario.
+- 📅 **Planificación (`planificacion.md`)**: Contiene los requerimientos y la planificación de Sprints que el MVP debe cumplir. Actúa como el backlog y definición funcional del producto.
 
