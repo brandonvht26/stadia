@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:stadia/core/providers/user_provider.dart';
 import 'package:stadia/core/widgets/protected_route.dart';
 
+// TODO: Refactorizar paddings fijos a AppSpacing.scaled(context, AppSpacing.md) cuando se generalice el escalado a todo el proyecto.
+
 class PersonalDataScreen extends StatefulWidget {
   const PersonalDataScreen({super.key});
 

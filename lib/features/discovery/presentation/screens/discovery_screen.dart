@@ -18,6 +18,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   late PageController _pageController;
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
+  bool _isSearchExpanded = false;
 
   @override
   void initState() {
@@ -171,44 +172,82 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 left: 16,
                 right: 16,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: _onSearchChanged,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: 'Buscar locales o anfitriones...',
-                          hintStyle: const TextStyle(color: Colors.white54),
-                          prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                          filled: true,
-                          fillColor: Colors.black.withValues(alpha: 0.6),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                        height: 48,
+                        alignment: _isSearchExpanded ? Alignment.center : Alignment.centerLeft,
+                        child: _isSearchExpanded
+                            ? TextField(
+                                controller: _searchController,
+                                onChanged: _onSearchChanged,
+                                autofocus: true,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: 'Buscar locales o anfitriones...',
+                                  hintStyle: const TextStyle(color: Colors.white54),
+                                  prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(Icons.close, color: Colors.white70),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isSearchExpanded = false;
+                                        _searchController.clear();
+                                      });
+                                      _onSearchChanged('');
+                                    },
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.black.withValues(alpha: 0.4),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _isSearchExpanded = true;
+                                  });
+                                },
+                                child: Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.4),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.search, color: Colors.white),
+                                ),
+                              ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: provider.currentFilters.hasActiveFilters 
-                            ? Colors.blueAccent 
-                            : Colors.black.withValues(alpha: 0.6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.tune,
+                    if (!_isSearchExpanded) const SizedBox(width: 12),
+                    if (!_isSearchExpanded)
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
                           color: provider.currentFilters.hasActiveFilters 
-                              ? Colors.white 
-                              : Colors.white70,
+                              ? Colors.blueAccent 
+                              : Colors.black.withValues(alpha: 0.4),
+                          shape: BoxShape.circle,
                         ),
-                        onPressed: _showFiltersSheet,
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.tune,
+                            color: provider.currentFilters.hasActiveFilters 
+                                ? Colors.white 
+                                : Colors.white70,
+                          ),
+                          onPressed: _showFiltersSheet,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),

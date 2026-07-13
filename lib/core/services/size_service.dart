@@ -79,4 +79,16 @@ class SizeService {
         return 1.0;
     }
   }
+
+  static double get spacingScale {
+    switch (sizeNotifier.value) {
+      case AppSizeScale.small:
+        return 0.75;
+      case AppSizeScale.big:
+        return 1.25;
+      case AppSizeScale.mid:
+      default:
+        return 1.0;
+    }
+  }
 }

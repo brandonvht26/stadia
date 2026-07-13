@@ -49,7 +49,11 @@ class AuthGate extends StatelessWidget {
             final session = snapshot.data?.session;
             if (session != null) {
               final userProvider = context.read<UserProvider>();
-              if (userProvider.profile == null && !userProvider.isLoading) {
+              final currentProfileId = userProvider.profile?['id'] as String?;
+              final sessionUserId = session.user.id;
+              
+              if ((userProvider.profile == null || currentProfileId != sessionUserId) 
+                  && !userProvider.isLoading) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   userProvider.loadProfile();
                 });

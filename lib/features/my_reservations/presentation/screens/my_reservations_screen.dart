@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:stadia/core/theme/app_spacing.dart';
 import '../../data/repositories/my_reservations_repository_impl.dart';
 import '../providers/my_reservations_provider.dart';
 import '../../../reviews/presentation/screens/review_screen.dart';
@@ -97,15 +98,15 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
           return RefreshIndicator(
             onRefresh: provider.loadReservations,
             child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(AppSpacing.scaled(context, AppSpacing.md)),
               itemCount: provider.reservations.length,
               itemBuilder: (context, index) {
                 final reservation = provider.reservations[index];
                 
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 16.0),
+                  margin: EdgeInsets.only(bottom: AppSpacing.scaled(context, AppSpacing.md)),
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(AppSpacing.scaled(context, AppSpacing.md)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -139,7 +140,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: AppSpacing.scaled(context, AppSpacing.sm)),
                         Row(
                           children: [
                             const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
@@ -150,7 +151,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: AppSpacing.scaled(context, AppSpacing.xs)),
                         Row(
                           children: [
                             const Icon(Icons.attach_money, size: 16, color: Colors.grey),
@@ -167,9 +168,9 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         
                         // Sección de Reseñas (solo si completada)
                         if (reservation.status == 'completed') ...[
-                          const SizedBox(height: 16),
+                          SizedBox(height: AppSpacing.scaled(context, AppSpacing.md)),
                           const Divider(),
-                          const SizedBox(height: 8),
+                          SizedBox(height: AppSpacing.scaled(context, AppSpacing.sm)),
                           if (reservation.hasReview)
                             const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -210,7 +211,7 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         
                         // Botón de Chat (siempre que no esté cancelada)
                         if (reservation.status != 'cancelled') ...[
-                          const SizedBox(height: 16),
+                          SizedBox(height: AppSpacing.scaled(context, AppSpacing.md)),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(

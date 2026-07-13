@@ -61,7 +61,7 @@ class HostRepositoryImpl implements HostRepository {
     try {
       final response = await _supabase
           .from('receptions')
-          .select()
+          .select('*, reception_media(*)')
           .eq('host_id', userId)
           .order('created_at', ascending: false);
 

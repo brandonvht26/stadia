@@ -98,15 +98,17 @@ class _ReceptionCardState extends State<ReceptionCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     imageUrls.length,
-                    (index) => Container(
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
                       margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                      width: _currentImageIndex == index ? 12.0 : 8.0,
-                      height: 8.0,
+                      width: _currentImageIndex == index ? 8.0 : 6.0,
+                      height: _currentImageIndex == index ? 8.0 : 6.0,
                       decoration: BoxDecoration(
                         color: _currentImageIndex == index
                             ? Colors.white
                             : Colors.white.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(4.0),
+                        shape: BoxShape.circle,
                       ),
                     ),
                   ),
@@ -156,47 +158,22 @@ class _ReceptionCardState extends State<ReceptionCard> {
                 ),
                 const SizedBox(height: 12),
 
-                // Precio y Likes
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-                      ),
-                      child: Text(
-                        '\$${widget.reception.basePrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
-                      ),
+                // Precio
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  ),
+                  child: Text(
+                    '\$${widget.reception.basePrice.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
                     ),
-                    const SizedBox(width: 16),
-                    _AnimatedHeartButton(
-                      isLiked: widget.reception.isLikedByUser,
-                      likesCount: widget.reception.likesCount,
-                      onTap: widget.onLikeToggle,
-                    ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BookingScreen.route(
-                              receptionId: widget.reception.id,
-                              basePrice: widget.reception.basePrice,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text('Reservar'),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 14),
 
@@ -224,6 +201,58 @@ class _ReceptionCardState extends State<ReceptionCard> {
                 ),
               ],
             ),
+          ),
+        ),
+
+        // 5. Botones de Acción Laterales
+        Positioned(
+          right: 12,
+          bottom: 100,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Botón de Like
+              _AnimatedHeartButton(
+                isLiked: widget.reception.isLikedByUser,
+                likesCount: widget.reception.likesCount,
+                onTap: widget.onLikeToggle,
+              ),
+              const SizedBox(height: 16),
+              // Botón de Reservar
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BookingScreen.route(
+                        receptionId: widget.reception.id,
+                        basePrice: widget.reception.basePrice,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: const BoxDecoration(
+                    color: Colors.blueAccent,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.calendar_month,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -336,13 +365,17 @@ class _AnimatedHeartButtonState extends State<_AnimatedHeartButton> with SingleT
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      // Usamos HitTestBehavior.opaque para que el área táctil incluya los SizedBox y el texto
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-        child: Row(
-          children: [
-            ScaleTransition(
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+            ),
+            child: ScaleTransition(
               scale: _scaleAnimation,
               child: Icon(
                 widget.isLiked ? Icons.favorite : Icons.favorite_border,
@@ -350,17 +383,17 @@ class _AnimatedHeartButtonState extends State<_AnimatedHeartButton> with SingleT
                 size: 24,
               ),
             ),
-            const SizedBox(width: 6),
-            Text(
-              '${widget.likesCount}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${widget.likesCount}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
