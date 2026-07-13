@@ -27,6 +27,7 @@ Future<void> main() async {
 
 final supabase = Supabase.instance.client;
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class StadiaApp extends StatefulWidget {
   const StadiaApp({super.key});
@@ -58,6 +59,7 @@ class _StadiaAppState extends State<StadiaApp> {
           return MaterialApp(
             title: 'Stadia',
             scaffoldMessengerKey: scaffoldMessengerKey,
+            navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             themeMode: currentMode,
             theme: ThemeData(

@@ -1,7 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../main.dart'; // Para scaffoldMessengerKey
+import '../../main.dart'; // Para navigatorKey
+import '../widgets/floating_notification_banner.dart';
 
 class PushNotificationService {
   static final PushNotificationService _instance = PushNotificationService._internal();
@@ -65,30 +66,12 @@ class PushNotificationService {
       debugPrint('PushNotificationService - Mensaje recibido en foreground: ${message.messageId}');
       
       final title = message.notification?.title ?? '';
-      final body = message.notification?.body ?? '';
 
-      if (title.isNotEmpty || body.isNotEmpty) {
-        scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (title.isNotEmpty)
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                if (body.isNotEmpty) Text(body),
-              ],
-            ),
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 4),
-            action: SnackBarAction(
-              label: 'Cerrar',
-              onPressed: () {
-                scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-              },
-            ),
-          ),
-        );
+      if (title.isNotEmpty) {
+        final context = navigatorKey.currentState?.overlay?.context;
+        if (context != null) {
+          FloatingNotificationBanner.show(context, title);
+        }
       }
     });
   }

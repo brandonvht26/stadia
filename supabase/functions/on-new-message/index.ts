@@ -24,11 +24,21 @@ serve(async (req) => {
     // El destinatario es el participante que NO envió el mensaje
     const recipientId = message.sender_id === chat.user_id ? chat.host_id : chat.user_id;
 
+    const { data: senderProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", message.sender_id)
+      .single();
+
+    const senderName = senderProfile 
+      ? `${senderProfile.first_name} ${senderProfile.last_name}`.trim() 
+      : "Alguien";
+
     await supabaseAdmin.functions.invoke("send-push", {
       headers: { Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
       body: {
         userId: recipientId,
-        title: "Nuevo mensaje",
+        title: `${senderName} - Nuevo mensaje`,
         body: message.content.length > 80 ? message.content.slice(0, 80) + "..." : message.content,
         data: { type: "new_message", chatId: message.chat_id },
       },
