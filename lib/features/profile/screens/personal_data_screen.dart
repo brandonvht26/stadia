@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:stadia/core/utils/ecuador_validators.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:stadia/core/widgets/stadia_scaffold.dart';
@@ -22,6 +24,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
   final _lastNameController = TextEditingController();
   final _bioController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _cedulaController = TextEditingController();
 
   bool _isSaving = false;
   bool _initialized = false;
@@ -33,6 +36,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     _lastNameController.dispose();
     _bioController.dispose();
     _phoneController.dispose();
+    _cedulaController.dispose();
     super.dispose();
   }
 
@@ -107,6 +111,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
         'last_name': _lastNameController.text.trim(),
         'bio': _bioController.text.trim(),
         'phone': _phoneController.text.trim(),
+        'cedula': _cedulaController.text.trim(),
       };
 
       await context.read<UserProvider>().updateProfile(updates);
@@ -178,6 +183,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       _lastNameController.text = profile['last_name'] ?? '';
       _bioController.text = profile['bio'] ?? '';
       _phoneController.text = profile['phone'] ?? '';
+      _cedulaController.text = profile['cedula'] ?? '';
       _initialized = true;
     }
 
@@ -195,19 +201,25 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[200],
-                      backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
-                          ? NetworkImage(avatarUrl)
-                          : null,
-                      child: avatarUrl == null || avatarUrl.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.grey,
-                            )
-                          : null,
+                    ClipOval(
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.grey[200],
+                        child: avatarUrl != null && avatarUrl.isNotEmpty
+                            ? Image.network(
+                                avatarUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.person, size: 50, color: Colors.grey);
+                                },
+                              )
+                            : const Icon(
+                                Icons.person,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
+                      ),
                     ),
                     if (_isUploadingAvatar)
                       const Positioned.fill(
@@ -230,26 +242,67 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                   controller: _firstNameController,
                   cursorColor: Colors.black,
                   decoration: _buildInputDecoration('Nombre'),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZÀ-ÿñÑ ]'))],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return 'Este campo es requerido';
+                    if (!RegExp(r'^[a-zA-ZÀ-ÿñÑ ]+$').hasMatch(value)) return 'Solo se permiten letras';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lastNameController,
                   cursorColor: Colors.black,
                   decoration: _buildInputDecoration('Apellido'),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZÀ-ÿñÑ ]'))],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return 'Este campo es requerido';
+                    if (!RegExp(r'^[a-zA-ZÀ-ÿñÑ ]+$').hasMatch(value)) return 'Solo se permiten letras';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
-                  keyboardType: TextInputType.phone,
+                  keyboardType: TextInputType.number,
                   cursorColor: Colors.black,
                   decoration: _buildInputDecoration('Teléfono'),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  validator: (value) {
+                    if (value == null || value.length != 10) return 'El teléfono debe tener 10 dígitos';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _cedulaController,
+                  keyboardType: TextInputType.number,
+                  cursorColor: Colors.black,
+                  decoration: _buildInputDecoration('Cédula'),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  validator: (value) {
+                    if (value == null || !esCedulaValida(value)) return 'Cédula inválida';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _bioController,
                   maxLines: 3,
+                  maxLength: 50,
                   cursorColor: Colors.black,
                   decoration: _buildInputDecoration('Biografía'),
+                  inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                  validator: (value) {
+                    if (value != null && value.length > 50) return 'Máximo 50 caracteres';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 32),
                 SizedBox(

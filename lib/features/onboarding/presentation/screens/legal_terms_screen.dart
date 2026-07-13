@@ -27,11 +27,8 @@ class _LegalTermsScreenState extends State<LegalTermsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Términos y Condiciones'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
       ),
       body: SafeArea(
@@ -44,11 +41,11 @@ class _LegalTermsScreenState extends State<LegalTermsScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[200]!),
+                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                   ),
-                  child: const SingleChildScrollView(
+                  child: SingleChildScrollView(
                     child: Text(
                       '''Términos y Condiciones de Uso de Stadia
 
@@ -61,11 +58,7 @@ Bienvenido a Stadia. Al utilizar nuestra aplicación, aceptas los siguientes té
 3. Acuerdos Directos: Cualquier acuerdo, contrato o disputa relacionada con el uso del espacio es estrictamente entre el usuario y el anfitrión.
 
 Al continuar, confirmas que has leído y aceptas nuestra política de intermediación y limitación de responsabilidad.''',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        height: 1.6,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
                     ),
                   ),
                 ),
@@ -75,20 +68,17 @@ Al continuar, confirmas que has leído y aceptas nuestra política de intermedia
                 children: [
                   Checkbox(
                     value: _acceptedTerms,
-                    activeColor: Colors.black,
+                    activeColor: Theme.of(context).colorScheme.primary,
                     onChanged: (value) {
                       setState(() {
                         _acceptedTerms = value ?? false;
                       });
                     },
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'He leído y acepto los términos y condiciones',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                     ),
                   ),
                 ],
@@ -98,23 +88,7 @@ Al continuar, confirmas que has leído y aceptas nuestra política de intermedia
                 height: 56,
                 child: ElevatedButton(
                   onPressed: _acceptedTerms ? _onAcceptAndContinue : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey[300],
-                    disabledForegroundColor: Colors.grey[500],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Aceptar y continuar',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: const Text('Aceptar y continuar'),
                 ),
               ),
             ],

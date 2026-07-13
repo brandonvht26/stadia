@@ -238,4 +238,42 @@ class HostRepositoryImpl implements HostRepository {
       throw Exception('Error al eliminar la recepción: $e');
     }
   }
+
+  @override
+  Future<HostRequirementsStatus> checkHostRequirements() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) throw Exception('Usuario no autenticado');
+
+      final profileResponse = await _supabase
+          .from('profiles')
+          .select('first_name, last_name, phone')
+          .eq('id', userId)
+          .maybeSingle();
+
+      bool hasProfile = false;
+      if (profileResponse != null) {
+        final fName = (profileResponse['first_name'] as String?)?.trim() ?? '';
+        final lName = (profileResponse['last_name'] as String?)?.trim() ?? '';
+        final phone = (profileResponse['phone'] as String?)?.trim() ?? '';
+        hasProfile = fName.isNotEmpty && lName.isNotEmpty && phone.isNotEmpty;
+      }
+
+      final bankResponse = await _supabase
+          .from('bank_accounts')
+          .select('id')
+          .eq('host_id', userId)
+          .limit(1)
+          .maybeSingle();
+
+      bool hasBank = bankResponse != null;
+
+      return HostRequirementsStatus(
+        hasCompleteProfile: hasProfile,
+        hasBankAccount: hasBank,
+      );
+    } catch (e) {
+      throw Exception('Error al verificar los requisitos del anfitrión: $e');
+    }
+  }
 }

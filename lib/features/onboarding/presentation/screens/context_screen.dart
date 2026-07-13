@@ -7,10 +7,7 @@ class ContextScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
       ),
       body: SafeArea(
@@ -21,31 +18,22 @@ class ContextScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              const Icon(
+              Icon(
                 Icons.celebration,
                 size: 80,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 32),
-              const Text(
+              Text(
                 'Encuentra el lugar perfecto',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1,
-                  color: Colors.black,
-                ),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Stadia es el marketplace donde puedes descubrir, reservar y gestionar salones y recepciones para tus eventos sociales, corporativos o familiares de manera rápida y segura.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                  height: 1.5,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),
               ),
               const Spacer(),
               SizedBox(
@@ -59,21 +47,7 @@ class ContextScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Continuar',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: const Text('Continuar'),
                 ),
               ),
             ],

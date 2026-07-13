@@ -6,7 +6,7 @@ class UserProvider extends ChangeNotifier {
   Map<String, dynamic>? profile;
   bool isLoading = false;
 
-  Future<void> loadProfile() async {
+  Future<void> loadProfile({int retryCount = 0}) async {
     isLoading = true;
     notifyListeners();
 
@@ -18,29 +18,38 @@ class UserProvider extends ChangeNotifier {
             .from('profiles')
             .select()
             .eq('id', userId)
-            .single();
+            .maybeSingle();
+
+        if (data == null && retryCount < 3) {
+          isLoading = false;
+          await Future.delayed(Duration(milliseconds: 800 * (retryCount + 1)));
+          return loadProfile(retryCount: retryCount + 1);
+        }
+
         profile = data;
 
-        final themePref = profile!['theme_preference'];
-        if (themePref != null) {
-          ThemeMode mode;
-          switch (themePref) {
-            case 'light':
-              mode = ThemeMode.light;
-              break;
-            case 'dark':
-              mode = ThemeMode.dark;
-              break;
-            case 'system':
-            default:
-              mode = ThemeMode.system;
-              break;
+        if (profile != null) {
+          final themePref = profile!['theme_preference'];
+          if (themePref != null) {
+            ThemeMode mode;
+            switch (themePref) {
+              case 'light':
+                mode = ThemeMode.light;
+                break;
+              case 'dark':
+                mode = ThemeMode.dark;
+                break;
+              case 'system':
+              default:
+                mode = ThemeMode.system;
+                break;
+            }
+            ThemeService.setTheme(mode);
           }
-          ThemeService.setTheme(mode);
         }
       }
     } catch (e) {
-      // Ignorar error por ahora o manejarlo
+      debugPrint('Error al cargar perfil (intento $retryCount): $e');
     } finally {
       isLoading = false;
       notifyListeners();

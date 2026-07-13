@@ -61,10 +61,14 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
     final availableServices = provider.availableServices;
     final locationDenied = provider.locationPermissionDenied;
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E), // Oscuro premium
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
         child: Padding(
@@ -77,21 +81,17 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Filtros',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: textTheme.titleLarge,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white70),
+                    icon: Icon(Icons.close, color: colorScheme.onSurface),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
-              const Divider(color: Colors.white24),
+              Divider(color: colorScheme.onSurface.withOpacity(0.08)),
 
               Flexible(
                 child: SingleChildScrollView(
@@ -101,25 +101,25 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Rango de Precio
-                        const Text(
-                'Rango de Precio',
-                style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('\$${_minPrice.toInt()}', style: const TextStyle(color: Colors.white)),
-                  Text('\$${_maxPrice.toInt()}', style: const TextStyle(color: Colors.white)),
-                ],
-              ),
+                        Text(
+                          'Rango de Precio',
+                          style: textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('\$${_minPrice.toInt()}', style: textTheme.bodyMedium),
+                            Text('\$${_maxPrice.toInt()}', style: textTheme.bodyMedium),
+                          ],
+                        ),
               RangeSlider(
                 values: RangeValues(_minPrice, _maxPrice),
                 min: _absMinPrice,
                 max: _absMaxPrice,
                 divisions: 50,
-                activeColor: Colors.blueAccent,
-                inactiveColor: Colors.white24,
+                activeColor: colorScheme.primary,
+                inactiveColor: colorScheme.primary.withOpacity(0.2),
                 onChanged: (values) {
                   setState(() {
                     _minPrice = values.start;
@@ -130,9 +130,9 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
               const SizedBox(height: 24),
 
               // Calificación Mínima
-              const Text(
+              Text(
                 'Calificación Mínima',
-                style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
+                style: textTheme.titleSmall,
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -142,9 +142,19 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
                   return ChoiceChip(
                     label: Text('$rating+ Estrellas'),
                     selected: isSelected,
-                    selectedColor: Colors.blueAccent.withValues(alpha: 0.3),
-                    backgroundColor: Colors.white10,
-                    labelStyle: TextStyle(color: isSelected ? Colors.blueAccent : Colors.white),
+                    selectedColor: colorScheme.primary.withOpacity(0.12),
+                    backgroundColor: colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    showCheckmark: false,
                     onSelected: (selected) {
                       setState(() {
                         _minRating = selected ? rating : null;
@@ -156,27 +166,27 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
               const SizedBox(height: 24),
 
               // Cercanía (Geolocalización)
-              const Text(
+              Text(
                 'Cercanía',
-                style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
+                style: textTheme.titleSmall,
               ),
               const SizedBox(height: 12),
               if (locationDenied)
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5)),
-                    borderRadius: BorderRadius.circular(8),
+                    color: colorScheme.error.withOpacity(0.1),
+                    border: Border.all(color: colorScheme.error.withOpacity(0.5)),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.location_off, color: Colors.redAccent),
-                      SizedBox(width: 8),
+                      Icon(Icons.location_off, color: colorScheme.error),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Activa tu ubicación y da permisos para filtrar por cercanía.',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                          style: textTheme.bodyMedium,
                         ),
                       ),
                     ],
@@ -191,9 +201,19 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
                     return ChoiceChip(
                       label: Text(label),
                       selected: isSelected,
-                      selectedColor: Colors.blueAccent.withValues(alpha: 0.3),
-                      backgroundColor: Colors.white10,
-                      labelStyle: TextStyle(color: isSelected ? Colors.blueAccent : Colors.white),
+                      selectedColor: colorScheme.primary.withOpacity(0.12),
+                      backgroundColor: colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
+                        ),
+                      ),
+                      labelStyle: TextStyle(
+                        color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                      showCheckmark: false,
                       onSelected: (selected) {
                         setState(() {
                           _maxDistanceKm = selected ? distance : null;
@@ -205,13 +225,13 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
               const SizedBox(height: 24),
 
               // Servicios
-              const Text(
+              Text(
                 'Servicios Requeridos',
-                style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600),
+                style: textTheme.titleSmall,
               ),
               const SizedBox(height: 12),
               if (availableServices.isEmpty)
-                const Text('No hay servicios disponibles', style: TextStyle(color: Colors.white54))
+                Text('No hay servicios disponibles', style: textTheme.bodyMedium)
               else
                 Wrap(
                   spacing: 8.0,
@@ -221,10 +241,19 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
                     return FilterChip(
                       label: Text(service),
                       selected: isSelected,
-                      selectedColor: Colors.blueAccent.withValues(alpha: 0.3),
-                      backgroundColor: Colors.white10,
-                      labelStyle: TextStyle(color: isSelected ? Colors.blueAccent : Colors.white),
-                      checkmarkColor: Colors.blueAccent,
+                      selectedColor: colorScheme.primary.withOpacity(0.12),
+                      backgroundColor: colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
+                        ),
+                      ),
+                      labelStyle: TextStyle(
+                        color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                      checkmarkColor: colorScheme.primary,
                       onSelected: (selected) {
                         setState(() {
                           if (selected) {
@@ -250,24 +279,14 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _clearFilters,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white54),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Limpiar', style: TextStyle(fontSize: 16)),
+                      child: const Text('Limpiar'),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _applyFilters,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Aplicar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: const Text('Aplicar'),
                     ),
                   ),
                 ],

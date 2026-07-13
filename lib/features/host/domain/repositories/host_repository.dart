@@ -5,6 +5,18 @@ import '../entities/bank_account_entity.dart';
 import '../entities/new_reception_entity.dart';
 import '../entities/new_service_entity.dart';
 
+class HostRequirementsStatus {
+  final bool hasCompleteProfile;
+  final bool hasBankAccount;
+
+  HostRequirementsStatus({
+    required this.hasCompleteProfile,
+    required this.hasBankAccount,
+  });
+
+  bool get canCreate => hasCompleteProfile && hasBankAccount;
+}
+
 abstract class HostRepository {
   Future<String> createReception(NewReceptionEntity data);
   Future<void> addServicesToReception(String receptionId, List<NewServiceEntity> services);
@@ -19,4 +31,5 @@ abstract class HostRepository {
   Future<void> saveBankAccount({required String accountNumber, required String bankName, required String accountType});
   Future<List<ReceptionPhotoEntity>> getReceptionPhotos(String receptionId);
   Future<void> deleteReception(String receptionId);
+  Future<HostRequirementsStatus> checkHostRequirements();
 }

@@ -16,11 +16,10 @@ class AuthGate extends StatelessWidget {
       future: OnboardingService.hasSeenOnboarding(),
       builder: (context, onboardingSnapshot) {
         if (onboardingSnapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: Colors.white,
+          return Scaffold(
             body: Center(
               child: CircularProgressIndicator(
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           );
@@ -36,11 +35,10 @@ class AuthGate extends StatelessWidget {
           stream: Supabase.instance.client.auth.onAuthStateChange,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                backgroundColor: Colors.white,
+              return Scaffold(
                 body: Center(
                   child: CircularProgressIndicator(
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               );

@@ -106,15 +106,21 @@ class _ProfileTabContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // 1. Header: Avatar + Nombre + Editar + Teléfono
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
-                    ? NetworkImage(avatarUrl)
-                    : null,
-                child: avatarUrl == null || avatarUrl.isEmpty
-                    ? const Icon(Icons.person, size: 40, color: Colors.grey)
-                    : null,
+              ClipOval(
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: avatarUrl != null && avatarUrl.isNotEmpty
+                      ? Image.network(
+                          avatarUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.person, size: 40, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3));
+                          },
+                        )
+                      : Icon(Icons.person, size: 40, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
+                ),
               ),
               SizedBox(height: AppSpacing.scaled(context, AppSpacing.md)),
               Row(
@@ -137,7 +143,7 @@ class _ProfileTabContent extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => const PersonalDataScreen()),
                       );
                     },
-                    child: const Icon(Icons.edit, size: 18, color: Colors.blueAccent),
+                    child: Icon(Icons.edit, size: 18, color: Theme.of(context).colorScheme.primary),
                   ),
                 ],
               ),
@@ -145,13 +151,13 @@ class _ProfileTabContent extends StatelessWidget {
               if (phone.isNotEmpty)
                 Text(
                   phone,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               if (bio.isNotEmpty) ...[
                 SizedBox(height: AppSpacing.scaled(context, AppSpacing.sm)),
                 Text(
                   bio,
-                  style: const TextStyle(fontSize: 13, color: Colors.black87, fontStyle: FontStyle.italic),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -162,7 +168,7 @@ class _ProfileTabContent extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'ESTADÍSTICAS',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 8),
@@ -171,18 +177,21 @@ class _ProfileTabContent extends StatelessWidget {
                   Expanded(
                     child: Card(
                       elevation: 0,
-                      color: Colors.grey.shade100,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      color: Theme.of(context).colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Column(
                           children: [
                             Text(
                               statsProvider.isLoading ? '-' : '${statsProvider.myReceptions.length}',
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
-                            const Text('Recepciones', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                            Text('Recepciones', style: Theme.of(context).textTheme.bodySmall),
                           ],
                         ),
                       ),
@@ -192,18 +201,21 @@ class _ProfileTabContent extends StatelessWidget {
                   Expanded(
                     child: Card(
                       elevation: 0,
-                      color: Colors.grey.shade100,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      color: Theme.of(context).colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Column(
                           children: [
                             Text(
                               statsProvider.isLoading ? '-' : '${statsProvider.reservationsCount}',
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
-                            const Text('Reservas', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                            Text('Reservas', style: Theme.of(context).textTheme.bodySmall),
                           ],
                         ),
                       ),
@@ -214,7 +226,7 @@ class _ProfileTabContent extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 statsProvider.getMemberSinceFormatted(createdAt),
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               SizedBox(height: AppSpacing.scaled(context, AppSpacing.xl)),
 
@@ -223,7 +235,7 @@ class _ProfileTabContent extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'OPCIONES',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 8),
@@ -234,11 +246,12 @@ class _ProfileTabContent extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
                       },
-                      icon: const Icon(Icons.settings, size: 16, color: Colors.black87),
-                      label: const Text('Ajustes', style: TextStyle(fontSize: 12, color: Colors.black87)),
+                      icon: const Icon(Icons.settings, size: 16),
+                      label: const Text('Ajustes', style: TextStyle(fontSize: 12)),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(color: Colors.grey.shade300),
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       ),
                     ),
                   ),
@@ -248,11 +261,12 @@ class _ProfileTabContent extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => BankAccountScreen.route()));
                       },
-                      icon: const Icon(Icons.account_balance, size: 16, color: Colors.black87),
-                      label: const Text('Banco', style: TextStyle(fontSize: 12, color: Colors.black87)),
+                      icon: const Icon(Icons.account_balance, size: 16),
+                      label: const Text('Banco', style: TextStyle(fontSize: 12)),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(color: Colors.grey.shade300),
+                        foregroundColor: Theme.of(context).colorScheme.primary,
+                        side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       ),
                     ),
                   ),
@@ -260,11 +274,12 @@ class _ProfileTabContent extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => _onLogout(context),
-                      icon: const Icon(Icons.logout, size: 16, color: Colors.red),
-                      label: const Text('Salir', style: TextStyle(fontSize: 12, color: Colors.red)),
+                      icon: const Icon(Icons.logout, size: 16),
+                      label: const Text('Salir', style: TextStyle(fontSize: 12)),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(color: Colors.red.shade200),
+                        foregroundColor: Theme.of(context).colorScheme.error,
+                        side: BorderSide(color: Theme.of(context).colorScheme.error),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       ),
                     ),
                   ),
@@ -277,7 +292,7 @@ class _ProfileTabContent extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'RECEPCIONES',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 8),
@@ -288,9 +303,9 @@ class _ProfileTabContent extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 32.0),
                   child: Column(
                     children: [
-                      Icon(Icons.storefront, size: 48, color: Colors.grey.shade400),
+                      Icon(Icons.storefront, size: 48, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
                       const SizedBox(height: 16),
-                      const Text('No has creado recepciones', style: TextStyle(color: Colors.grey)),
+                      Text('No has creado recepciones', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {

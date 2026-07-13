@@ -4,6 +4,8 @@ import '../../data/repositories/host_repository_impl.dart';
 import 'create_reception_screen.dart';
 import 'verification_payment_screen.dart';
 import 'manage_photos_screen.dart';
+import 'bank_account_screen.dart';
+import '../../../profile/screens/personal_data_screen.dart';
 
 class MyReceptionsScreen extends StatefulWidget {
   const MyReceptionsScreen({super.key});
@@ -29,35 +31,123 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
     });
   }
 
+  Future<void> _onCreateReceptionPressed(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final status = await _repository.checkHostRequirements();
+      if (!context.mounted) return;
+      Navigator.pop(context); // pop loading
+
+      if (status.canCreate) {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CreateReceptionScreen()),
+        );
+        if (result == true) {
+          _loadReceptions();
+        }
+      } else {
+        String message = '';
+        if (!status.hasCompleteProfile && !status.hasBankAccount) {
+          message = 'Completa tu perfil (nombre, apellido y teléfono) y registra tus datos bancarios antes de publicar una recepción.';
+        } else if (!status.hasCompleteProfile) {
+          message = 'Completa tu perfil (nombre, apellido y teléfono) antes de publicar una recepción.';
+        } else {
+          message = 'Registra tus datos bancarios antes de publicar una recepción.';
+        }
+
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Información incompleta'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  if (!status.hasCompleteProfile) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PersonalDataScreen()),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => BankAccountScreen.route()),
+                    );
+                  }
+                },
+                child: const Text('Completar datos'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      Navigator.pop(context); // pop loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Mis Recepciones'),
-      ),
-      body: FutureBuilder<List<ReceptionEntity>>(
-        future: _receptionsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+    return FutureBuilder<List<ReceptionEntity>>(
+      future: _receptionsFuture,
+      builder: (context, snapshot) {
+        final receptions = snapshot.data;
+        final hasReceptions = receptions != null && receptions.isNotEmpty;
 
-          final receptions = snapshot.data;
-          if (receptions == null || receptions.isEmpty) {
-            return const Center(
-              child: Text('Aún no has publicado ninguna recepción.'),
-            );
-          }
+        return Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text('Mis Recepciones'),
+          ),
+          body: Builder(
+            builder: (context) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: receptions.length,
-            itemBuilder: (context, index) {
-              final reception = receptions[index];
+              if (!hasReceptions) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Aún no has publicado ninguna recepción.'),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => _onCreateReceptionPressed(context),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(200, 44),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        ),
+                        child: const Text('Crear recepción'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: receptions.length,
+                itemBuilder: (context, index) {
+                  final reception = receptions[index];
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Stack(
@@ -219,18 +309,14 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CreateReceptionScreen()),
-          );
-          if (result == true) {
-            _loadReceptions();
-          }
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: hasReceptions
+              ? FloatingActionButton(
+                  onPressed: () => _onCreateReceptionPressed(context),
+                  child: const Icon(Icons.add),
+                )
+              : null,
+        );
+      },
     );
   }
 }
