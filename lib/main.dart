@@ -8,6 +8,7 @@ import 'package:stadia/core/services/size_service.dart';
 import 'package:stadia/core/services/push_notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:stadia/core/providers/user_provider.dart';
+import 'package:stadia/core/theme/app_theme.dart';
 import 'package:stadia/features/discovery/presentation/providers/discovery_provider.dart';
 import 'package:stadia/features/discovery/data/repositories/discovery_repository_impl.dart';
 
@@ -75,34 +76,8 @@ class _StadiaAppState extends State<StadiaApp> {
                     child: child!,
                   );
                 },
-                theme: ThemeData(
-                  useMaterial3: true,
-                  colorScheme: ColorScheme.fromSeed(
-                    seedColor: Colors.black,
-                    brightness: Brightness.light,
-                  ),
-                  scaffoldBackgroundColor: Colors.white,
-                  appBarTheme: const AppBarTheme(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                  ),
-                  fontFamily: 'Roboto',
-                ),
-                darkTheme: ThemeData(
-                  useMaterial3: true,
-                  colorScheme: ColorScheme.fromSeed(
-                    seedColor: Colors.white,
-                    brightness: Brightness.dark,
-                  ),
-                  scaffoldBackgroundColor: Colors.black,
-                  appBarTheme: const AppBarTheme(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                  ),
-                  fontFamily: 'Roboto',
-                ),
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
                 home: const AuthGate(),
               );
             },

@@ -16,12 +16,18 @@ Este documento (Skill) contiene las guías visuales y de interacción del usuari
 
 ## Sistema de Diseño (Design System)
 
-### Paleta de Colores
+### Paleta de Colores (Modo Claro)
 - **Primario (Concha de Vino):** `#6D1432` - Uso: Botones principales, acentos, headers.
 - **Fondo (Perla):** `#F6F4F0` - Uso: Color de fondo general de la aplicación (Scaffolds).
 - **Superficie:** `#FFFFFF` - Uso: Tarjetas, Bottom Sheets, Modales.
 - **Texto Principal:** `#1A1A1A` - Uso: Títulos y textos descriptivos.
 - **Texto Secundario:** `#757575` - Uso: Subtítulos, hints, texto de soporte.
+
+### Paleta de Colores (Modo Oscuro)
+- **Primario (Vino Neón / Luminous Ruby):** `#E01A4F` - En modo oscuro, el vino tradicional pierde contraste. Se usa esta versión vibrante y luminosa, que encaja perfectamente con el efecto de cristal (Glassmorfismo).
+- **Fondo:** `#121212` - Negro premium, sin distracciones.
+- **Superficie:** `#1E1E1E` - Gris muy oscuro para crear elevación suave sobre el fondo.
+- **Textos:** Blanco puro (`#FFFFFF`) y gris claro (`#A0A0A0`).
 
 ### Tipografía
 - **Fuente Principal:** `Raleway`
