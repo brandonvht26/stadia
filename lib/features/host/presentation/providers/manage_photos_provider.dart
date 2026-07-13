@@ -37,6 +37,12 @@ class ManagePhotosProvider extends ChangeNotifier {
   }
 
   Future<void> addPhoto(File file) async {
+    if (_photos.length >= 5) {
+      _error = 'Máximo 5 fotos por recepción.';
+      notifyListeners();
+      return;
+    }
+    
     _isSaving = true;
     _error = null;
     notifyListeners();

@@ -17,7 +17,6 @@ class ChatRepositoryImpl implements ChatRepository {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) throw Exception('Usuario no autenticado');
 
-    // Intentar buscar si ya existe un chat
     final existingChats = await _supabase
         .from('chats')
         .select('id')
@@ -30,7 +29,6 @@ class ChatRepositoryImpl implements ChatRepository {
       return data.first['id'] as String;
     }
 
-    // Si no existe, lo creamos
     final newChat = await _supabase.from('chats').insert({
       'user_id': userId,
       'host_id': hostId,

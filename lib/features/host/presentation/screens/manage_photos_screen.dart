@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/widgets/image_source_picker.dart';
 import '../../data/repositories/host_repository_impl.dart';
 import '../providers/manage_photos_provider.dart';
 
@@ -30,12 +31,19 @@ class ManagePhotosScreen extends StatefulWidget {
 
 class _ManagePhotosScreenState extends State<ManagePhotosScreen> {
   Future<void> _pickImage(BuildContext context) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final provider = context.read<ManagePhotosProvider>();
+    if (provider.photos.length >= 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Máximo 5 fotos por recepción.')),
+      );
+      return;
+    }
+
+    final pickedFile = await showImageSourcePicker(context);
 
     if (pickedFile != null) {
       if (context.mounted) {
-        context.read<ManagePhotosProvider>().addPhoto(File(pickedFile.path));
+        provider.addPhoto(File(pickedFile.path));
       }
     }
   }
@@ -46,11 +54,11 @@ class _ManagePhotosScreenState extends State<ManagePhotosScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar Fotos'),
+        title: Text('Gestionar Fotos (${provider.photos.length}/5)'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_a_photo),
-            onPressed: provider.isSaving ? null : () => _pickImage(context),
+            onPressed: (provider.isSaving || provider.photos.length >= 5) ? null : () => _pickImage(context),
           ),
         ],
       ),
@@ -66,7 +74,7 @@ class _ManagePhotosScreenState extends State<ManagePhotosScreen> {
                   const Text('No hay fotos. Agrega algunas.'),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    onPressed: provider.isSaving ? null : () => _pickImage(context),
+                    onPressed: (provider.isSaving || provider.photos.length >= 5) ? null : () => _pickImage(context),
                     icon: const Icon(Icons.add_a_photo),
                     label: const Text('Agregar foto'),
                   ),

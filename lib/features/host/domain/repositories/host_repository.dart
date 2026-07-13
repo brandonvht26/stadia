@@ -18,4 +18,5 @@ abstract class HostRepository {
 
   Future<void> saveBankAccount({required String accountNumber, required String bankName, required String accountType});
   Future<List<ReceptionPhotoEntity>> getReceptionPhotos(String receptionId);
+  Future<void> deleteReception(String receptionId);
 }

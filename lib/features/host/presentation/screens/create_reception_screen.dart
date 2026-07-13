@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/location_service.dart';
+import '../../../../core/widgets/image_source_picker.dart';
 import '../../data/repositories/host_repository_impl.dart';
 import '../providers/create_reception_provider.dart';
 
@@ -108,12 +109,18 @@ class _CreateReceptionViewState extends State<_CreateReceptionView> {
   }
 
   Future<void> _pickImage(BuildContext context) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final provider = context.read<CreateReceptionProvider>();
+    if (provider.pendingPhotos.length >= 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Máximo 5 fotos por recepción.')),
+      );
+      return;
+    }
 
+    final pickedFile = await showImageSourcePicker(context);
     if (pickedFile != null) {
       if (context.mounted) {
-        context.read<CreateReceptionProvider>().addPhoto(File(pickedFile.path));
+        provider.addPhoto(File(pickedFile.path));
       }
     }
   }
@@ -285,12 +292,18 @@ class _CreateReceptionViewState extends State<_CreateReceptionView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Fotos de tu local', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      TextButton.icon(
-                        onPressed: () => _pickImage(context),
-                        icon: const Icon(Icons.add_a_photo),
-                        label: const Text('Agregar foto'),
-                      ),
+                      Text('Fotos de tu local (${provider.pendingPhotos.length}/5)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      if (provider.pendingPhotos.length < 5)
+                        TextButton.icon(
+                          onPressed: () => _pickImage(context),
+                          icon: const Icon(Icons.add_a_photo),
+                          label: const Text('Agregar foto'),
+                        )
+                      else
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Text('Límite alcanzado', style: TextStyle(color: Colors.grey)),
+                        ),
                     ],
                   ),
                   if (provider.pendingPhotos.isEmpty)

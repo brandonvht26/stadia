@@ -31,6 +31,12 @@ class CreateReceptionProvider extends ChangeNotifier {
   List<File> get pendingPhotos => List.unmodifiable(_pendingPhotos);
 
   void addPhoto(File file) {
+    if (_pendingPhotos.length >= 5) {
+      _error = 'Máximo 5 fotos por recepción.';
+      notifyListeners();
+      return;
+    }
+    _error = null;
     _pendingPhotos.add(file);
     notifyListeners();
   }

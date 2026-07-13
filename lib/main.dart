@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:stadia/core/auth_gate.dart';
 import 'package:stadia/core/services/theme_service.dart';
+import 'package:stadia/core/services/size_service.dart';
 import 'package:stadia/core/services/push_notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:stadia/core/providers/user_provider.dart';
@@ -22,6 +23,7 @@ Future<void> main() async {
   await Stripe.instance.applySettings();
 
   await ThemeService.loadTheme();
+  await SizeService.loadSize();
   runApp(const StadiaApp());
 }
 
@@ -53,44 +55,57 @@ class _StadiaAppState extends State<StadiaApp> {
         ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
         ChangeNotifierProvider<DiscoveryProvider>(create: (_) => DiscoveryProvider(DiscoveryRepositoryImpl())),
       ],
-      child: ValueListenableBuilder<ThemeMode>(
-        valueListenable: ThemeService.themeNotifier,
-        builder: (context, currentMode, _) {
-          return MaterialApp(
-            title: 'Stadia',
-            scaffoldMessengerKey: scaffoldMessengerKey,
-            navigatorKey: navigatorKey,
-            debugShowCheckedModeBanner: false,
-            themeMode: currentMode,
-            theme: ThemeData(
-              useMaterial3: true,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.black,
-                brightness: Brightness.light,
-              ),
-              scaffoldBackgroundColor: Colors.white,
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                elevation: 0,
-              ),
-              fontFamily: 'Roboto',
-            ),
-            darkTheme: ThemeData(
-              useMaterial3: true,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.white,
-                brightness: Brightness.dark,
-              ),
-              scaffoldBackgroundColor: Colors.black,
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                elevation: 0,
-              ),
-              fontFamily: 'Roboto',
-            ),
-            home: const AuthGate(),
+      child: ValueListenableBuilder<AppSizeScale>(
+        valueListenable: SizeService.sizeNotifier,
+        builder: (context, currentSize, _) {
+          return ValueListenableBuilder<ThemeMode>(
+            valueListenable: ThemeService.themeNotifier,
+            builder: (context, currentMode, _) {
+              return MaterialApp(
+                title: 'Stadia',
+                scaffoldMessengerKey: scaffoldMessengerKey,
+                navigatorKey: navigatorKey,
+                debugShowCheckedModeBanner: false,
+                themeMode: currentMode,
+                builder: (context, child) {
+                  return MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      textScaler: TextScaler.linear(SizeService.scaleFactor),
+                    ),
+                    child: child!,
+                  );
+                },
+                theme: ThemeData(
+                  useMaterial3: true,
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.black,
+                    brightness: Brightness.light,
+                  ),
+                  scaffoldBackgroundColor: Colors.white,
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                  ),
+                  fontFamily: 'Roboto',
+                ),
+                darkTheme: ThemeData(
+                  useMaterial3: true,
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.white,
+                    brightness: Brightness.dark,
+                  ),
+                  scaffoldBackgroundColor: Colors.black,
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                  ),
+                  fontFamily: 'Roboto',
+                ),
+                home: const AuthGate(),
+              );
+            },
           );
         },
       ),

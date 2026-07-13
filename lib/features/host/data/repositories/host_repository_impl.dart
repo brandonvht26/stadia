@@ -227,4 +227,15 @@ class HostRepositoryImpl implements HostRepository {
       throw Exception('Error al obtener las fotos de la recepción: $e');
     }
   }
+
+  @override
+  Future<void> deleteReception(String receptionId) async {
+    try {
+      await _supabase.from('receptions').delete().eq('id', receptionId);
+    } on PostgrestException catch (e) {
+      throw Exception(e.message);
+    } catch (e) {
+      throw Exception('Error al eliminar la recepción: $e');
+    }
+  }
 }
