@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/card_number_formatter.dart';
 import '../../data/repositories/host_repository_impl.dart';
 import '../providers/bank_account_provider.dart';
 
@@ -39,7 +41,10 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
       final hasData = await provider.loadBankAccount();
       
       if (hasData && mounted) {
-        _accountNumberController.text = provider.accountNumber;
+        _accountNumberController.text = CardNumberInputFormatter().formatEditUpdate(
+          const TextEditingValue(),
+          TextEditingValue(text: provider.accountNumber),
+        ).text;
         _bankNameController.text = provider.bankName;
       }
       
@@ -56,6 +61,36 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
     _accountNumberController.dispose();
     _bankNameController.dispose();
     super.dispose();
+  }
+
+  Widget _buildAccountTypeOption(BankAccountProvider provider, String value, String label) {
+    final currentType = provider.accountType.isEmpty ? 'savings' : provider.accountType;
+    final isSelected = currentType == value;
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        provider.setAccountType(value);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withOpacity(0.12) : AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.black.withOpacity(0.08),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
   }
 
   void _submit() async {
@@ -108,11 +143,18 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                   prefixIcon: Icon(Icons.numbers),
                 ),
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: provider.setAccountNumber,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  CardNumberInputFormatter(),
+                ],
+                onChanged: (value) => provider.setAccountNumber(value.replaceAll(' ', '')),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Ingresa el número de cuenta';
+                  }
+                  final noSpaces = value.replaceAll(' ', '');
+                  if (noSpaces.length < 8 || noSpaces.length > 16) {
+                    return 'Número de cuenta inválido';
                   }
                   return null;
                 },
@@ -126,30 +168,39 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.account_balance),
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZÀ-ÿñÑ ]')),
+                ],
                 onChanged: provider.setBankName,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Ingresa el nombre del banco';
+                  }
+                  if (!RegExp(r'^[a-zA-ZÀ-ÿñÑ ]+$').hasMatch(value)) {
+                    return 'Solo se permiten letras';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               
-              DropdownButtonFormField<String>(
-                value: provider.accountType.isEmpty ? 'savings' : provider.accountType,
-                decoration: const InputDecoration(
-                  labelText: 'Tipo de cuenta',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.account_balance_wallet),
+              const Padding(
+                padding: EdgeInsets.only(left: 4, bottom: 8),
+                child: Text(
+                  'Tipo de cuenta',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'savings', child: Text('Cuenta de Ahorros')),
-                  DropdownMenuItem(value: 'checking', child: Text('Cuenta Corriente')),
+              ),
+              Row(
+                children: [
+                  Expanded(child: _buildAccountTypeOption(provider, 'savings', 'Cuenta de Ahorros')),
+                  const SizedBox(width: 12),
+                  Expanded(child: _buildAccountTypeOption(provider, 'checking', 'Cuenta Corriente')),
                 ],
-                onChanged: (value) {
-                  if (value != null) provider.setAccountType(value);
-                },
               ),
               
               const SizedBox(height: 12),

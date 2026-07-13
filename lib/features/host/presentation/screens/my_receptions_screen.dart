@@ -164,54 +164,66 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
                             const SizedBox(height: 4),
                             Text(
                               reception.latitude != null && reception.longitude != null
-                                  ? 'Ubicación: ${reception.latitude!.toStringAsFixed(5)}, ${reception.longitude!.toStringAsFixed(5)}'
+                                  ? 'Ubicación: ${reception.latitude!.toStringAsFixed(4)}, ${reception.longitude!.toStringAsFixed(4)}'
                                   : 'Ubicación no disponible',
                               style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
                             ),
                             const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => ManagePhotosScreen.route(receptionId: reception.id),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => ManagePhotosScreen.route(receptionId: reception.id),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                      minimumSize: const Size(0, 36),
                                     ),
-                                  );
-                                },
-                                icon: const Icon(Icons.photo_library, size: 18),
-                                label: const Text('Gestionar fotos'),
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  alignment: Alignment.centerLeft,
-                                ),
-                              ),
-                            ),
-                            if (!reception.isVerified) ...[
-                              const SizedBox(height: 8),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    final result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => VerificationPaymentScreen(receptionId: reception.id),
-                                      ),
-                                    );
-                                    if (result == true) {
-                                      _loadReceptions();
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    alignment: Alignment.centerLeft,
+                                    child: const Text(
+                                      'Fotos',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 13),
+                                    ),
                                   ),
-                                  child: const Text('Verificar por \$20'),
                                 ),
-                              ),
-                            ],
+                                if (!reception.isVerified) ...[
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    flex: 2,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => VerificationPaymentScreen(receptionId: reception.id),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          _loadReceptions();
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                        minimumSize: const Size(0, 36),
+                                      ),
+                                      child: const Text(
+                                        'Verificar \$20',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ],
                         ),
                       ),
