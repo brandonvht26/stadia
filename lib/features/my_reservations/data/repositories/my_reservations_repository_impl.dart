@@ -22,6 +22,7 @@ class MyReservationsRepositoryImpl implements MyReservationsRepository {
             event_date,
             total_amount,
             status,
+            reschedule_count,
             receptions (
               title,
               host_id
@@ -66,6 +67,7 @@ class MyReservationsRepositoryImpl implements MyReservationsRepository {
           totalAmount: (json['total_amount'] as num).toDouble(),
           status: json['status'] as String,
           hasReview: reviewedReceptionIds.contains(recId),
+          rescheduleCount: json['reschedule_count'] as int? ?? 0,
         );
       }).toList();
     } catch (e) {
@@ -87,6 +89,30 @@ class MyReservationsRepositoryImpl implements MyReservationsRepository {
           .eq('id', reservationId);
     } catch (e) {
       throw Exception('Error al cancelar la reserva: $e');
+    }
+  }
+
+  @override
+  Future<void> rescheduleReservation({required String reservationId, required DateTime newDate}) async {
+    try {
+      final formattedDate = '${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}';
+      
+      final response = await _supabase.functions.invoke(
+        'reschedule-reservation',
+        body: {'reservationId': reservationId, 'newDate': formattedDate},
+      );
+
+      final data = response.data;
+      if (data != null && data['error'] != null) {
+        throw Exception(data['error']);
+      }
+    } on FunctionException catch (e) {
+      if (e.details != null && e.details is Map && (e.details as Map).containsKey('error')) {
+        throw Exception((e.details as Map)['error']);
+      }
+      throw Exception('Error desconocido al reagendar: ${e.details ?? e.toString()}');
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 }

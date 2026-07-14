@@ -8,6 +8,7 @@ import '../../../chat/data/repositories/chat_repository_impl.dart';
 import '../../../chat/presentation/screens/chat_thread_screen.dart';
 import '../../../../core/widgets/timed_confirmation_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../reservations/data/repositories/reservations_repository_impl.dart';
 
 class MyReservationsScreen extends StatefulWidget {
   const MyReservationsScreen({super.key});
@@ -141,6 +142,91 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                               ),
                             ),
                             if (reservation.status == 'pending' || reservation.status == 'confirmed') ...[
+                              if (reservation.rescheduleCount == 0 && reservation.eventDate.difference(DateTime.now()).inHours >= 48)
+                                IconButton(
+                                  icon: const Icon(Icons.event_repeat, color: Colors.blue),
+                                  tooltip: 'Reagendar reserva',
+                                  onPressed: () async {
+                                    try {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (_) => const Center(child: CircularProgressIndicator()),
+                                      );
+                                      
+                                      final reservationsRepo = ReservationsRepositoryImpl();
+                                      final reservedDates = await reservationsRepo.getReservedDates(reservation.receptionId);
+                                      
+                                      if (context.mounted) Navigator.pop(context); // Cierra loader
+                                      if (!context.mounted) return;
+                                      
+                                      DateTime _minimumRescheduleDate() {
+                                        final minDateTime = DateTime.now().add(const Duration(hours: 48));
+                                        return DateTime(minDateTime.year, minDateTime.month, minDateTime.day);
+                                      }
+                                      
+                                      final minDate = _minimumRescheduleDate();
+                                      DateTime initialDate = minDate;
+                                      final normalizedReserved = reservedDates.map((d) => DateTime(d.year, d.month, d.day)).toSet();
+                                      
+                                      while (normalizedReserved.contains(DateTime(initialDate.year, initialDate.month, initialDate.day))) {
+                                        initialDate = initialDate.add(const Duration(days: 1));
+                                      }
+                                      
+                                      final selectedDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: initialDate,
+                                        firstDate: minDate,
+                                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                                        selectableDayPredicate: (day) {
+                                          return !normalizedReserved.contains(DateTime(day.year, day.month, day.day));
+                                        },
+                                      );
+                                      
+                                      if (selectedDate != null && context.mounted) {
+                                        final confirmed = await showTimedConfirmationDialog(
+                                          context: context,
+                                          title: 'Confirmar reagendamiento',
+                                          message: '¿Estás seguro de reagendar tu reserva para el ${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}?',
+                                          seconds: 0,
+                                        );
+                                        
+                                        if (confirmed == true && context.mounted) {
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (_) => const Center(child: CircularProgressIndicator()),
+                                          );
+                                          
+                                          try {
+                                            await provider.rescheduleReservation(reservation.id, selectedDate);
+                                            if (context.mounted) {
+                                              Navigator.pop(context); // Cierra loader
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Reserva reagendada con éxito'), backgroundColor: Colors.green),
+                                              );
+                                              provider.loadReservations();
+                                            }
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              Navigator.pop(context); // Cierra loader
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text(e.toString().replaceAll('Exception: ', '')), backgroundColor: Colors.red),
+                                              );
+                                            }
+                                          }
+                                        }
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        Navigator.pop(context); // Cierra loader
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Error al cargar disponibilidad: $e'), backgroundColor: Colors.red),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
                               const SizedBox(width: 8),
                               IconButton(
                                 icon: const Icon(Icons.cancel_outlined, color: Colors.red),

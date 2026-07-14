@@ -46,4 +46,12 @@ class MyReservationsProvider extends ChangeNotifier {
       throw e;
     }
   }
+
+  Future<void> rescheduleReservation(String reservationId, DateTime newDate) async {
+    try {
+      await _repository.rescheduleReservation(reservationId: reservationId, newDate: newDate);
+    } catch (e) {
+      throw e;
+    }
+  }
 }

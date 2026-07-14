@@ -7,6 +7,7 @@ class ReservationEntity {
   final double totalAmount;
   final String status;
   final bool hasReview;
+  final int rescheduleCount;
 
   const ReservationEntity({
     required this.id,
@@ -17,6 +18,7 @@ class ReservationEntity {
     required this.totalAmount,
     required this.status,
     this.hasReview = false,
+    this.rescheduleCount = 0,
   });
 
   ReservationEntity copyWith({
@@ -28,6 +30,7 @@ class ReservationEntity {
     double? totalAmount,
     String? status,
     bool? hasReview,
+    int? rescheduleCount,
   }) {
     return ReservationEntity(
       id: id ?? this.id,
@@ -38,6 +41,7 @@ class ReservationEntity {
       totalAmount: totalAmount ?? this.totalAmount,
       status: status ?? this.status,
       hasReview: hasReview ?? this.hasReview,
+      rescheduleCount: rescheduleCount ?? this.rescheduleCount,
     );
   }
 }
