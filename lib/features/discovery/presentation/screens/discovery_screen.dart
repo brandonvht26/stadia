@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/discovery_provider.dart';
@@ -175,77 +176,94 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOut,
-                        height: 48,
-                        alignment: _isSearchExpanded ? Alignment.center : Alignment.centerLeft,
-                        child: _isSearchExpanded
-                            ? TextField(
-                                controller: _searchController,
-                                onChanged: _onSearchChanged,
-                                autofocus: true,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: InputDecoration(
-                                  hintText: 'Buscar locales o anfitriones...',
-                                  hintStyle: const TextStyle(color: Colors.white54),
-                                  prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                                  suffixIcon: IconButton(
-                                    icon: const Icon(Icons.close, color: Colors.white70),
-                                    onPressed: () {
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.easeOut,
+                            height: 48,
+                            alignment: _isSearchExpanded ? Alignment.center : Alignment.centerLeft,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: Colors.white.withOpacity(0.2)),
+                            ),
+                            child: _isSearchExpanded
+                                ? TextField(
+                                    controller: _searchController,
+                                    onChanged: _onSearchChanged,
+                                    autofocus: true,
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      hintText: 'Buscar locales o anfitriones...',
+                                      hintStyle: const TextStyle(color: Colors.white70),
+                                      prefixIcon: const Icon(Icons.search, color: Colors.white),
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.close, color: Colors.white),
+                                        onPressed: () {
+                                          setState(() {
+                                            _isSearchExpanded = false;
+                                            _searchController.clear();
+                                          });
+                                          _onSearchChanged('');
+                                        },
+                                      ),
+                                      filled: false,
+                                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                  )
+                                : GestureDetector(
+                                    onTap: () {
                                       setState(() {
-                                        _isSearchExpanded = false;
-                                        _searchController.clear();
+                                        _isSearchExpanded = true;
                                       });
-                                      _onSearchChanged('');
                                     },
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.search, color: Colors.white),
+                                    ),
                                   ),
-                                  filled: true,
-                                  fillColor: Colors.black.withValues(alpha: 0.4),
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
-                              )
-                            : GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isSearchExpanded = true;
-                                  });
-                                },
-                                child: Container(
-                                  width: 48,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.4),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.search, color: Colors.white),
-                                ),
-                              ),
+                          ),
+                        ),
                       ),
                     ),
                     if (!_isSearchExpanded) const SizedBox(width: 12),
                     if (!_isSearchExpanded)
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: provider.currentFilters.hasActiveFilters 
-                              ? Colors.blueAccent 
-                              : Colors.black.withValues(alpha: 0.4),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.tune,
-                            color: provider.currentFilters.hasActiveFilters 
-                                ? Colors.white 
-                                : Colors.white70,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: provider.currentFilters.hasActiveFilters 
+                                  ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
+                                  : Colors.white.withOpacity(0.15),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: provider.currentFilters.hasActiveFilters
+                                    ? Colors.transparent
+                                    : Colors.white.withOpacity(0.2),
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.tune,
+                                color: Colors.white,
+                              ),
+                              onPressed: _showFiltersSheet,
+                            ),
                           ),
-                          onPressed: _showFiltersSheet,
                         ),
                       ),
                   ],

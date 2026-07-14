@@ -79,64 +79,75 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
-                  if (_isEmailSent)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        'Si el correo está registrado, recibirás un mensaje con instrucciones para cambiar tu contraseña.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, height: 1.5),
-                        textAlign: TextAlign.center,
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (_isEmailSent)
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                'Si el correo está registrado, recibirás un mensaje con instrucciones para cambiar tu contraseña.',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, height: 1.5),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          if (!_isEmailSent)
+                            TextFormField(
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: const InputDecoration(
+                                labelText: 'Correo electrónico',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor, ingresa tu correo';
+                                }
+                                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                  return 'Ingresa un correo válido';
+                                }
+                                return null;
+                              },
+                            ),
+                          const SizedBox(height: 32),
+                          if (_isEmailSent)
+                            SizedBox(
+                              height: 52,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Volver al login'),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _resetPassword,
+                                child: _isLoading
+                                    ? SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Text('Enviar correo de recuperación'),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  if (!_isEmailSent)
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Correo electrónico',
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, ingresa tu correo';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Ingresa un correo válido';
-                        }
-                        return null;
-                      },
-                    ),
-                  const SizedBox(height: 32),
-                  if (_isEmailSent)
-                    SizedBox(
-                      height: 52,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Volver al login'),
-                      ),
-                    )
-                  else
-                    SizedBox(
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _resetPassword,
-                        child: _isLoading
-                            ? SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  color: Theme.of(context).colorScheme.onPrimary,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text('Enviar correo de recuperación'),
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),

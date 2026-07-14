@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../domain/entities/review_with_user_entity.dart';
 import '../../data/repositories/discovery_repository_impl.dart';
@@ -34,12 +35,16 @@ class _ReceptionReviewsSheetState extends State<ReceptionReviewsSheet> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SafeArea(
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colorScheme.surface.withOpacity(0.85),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Column(
@@ -132,7 +137,7 @@ class _ReceptionReviewsSheetState extends State<ReceptionReviewsSheet> {
           ),
         ),
       ),
-    );
+    )));
   }
 
   Widget _buildReviewCard(ReviewWithUserEntity review, ColorScheme colorScheme, TextTheme textTheme) {

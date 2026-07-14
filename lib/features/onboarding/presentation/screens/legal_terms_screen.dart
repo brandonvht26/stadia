@@ -1,6 +1,8 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:stadia/core/services/onboarding_service.dart';
 import 'package:stadia/features/auth/screens/login_screen.dart';
+import '../widgets/onboarding_background.dart';
 
 class LegalTermsScreen extends StatefulWidget {
   const LegalTermsScreen({super.key});
@@ -27,25 +29,33 @@ class _LegalTermsScreenState extends State<LegalTermsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Términos y Condiciones'),
         elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: SafeArea(
+      body: OnboardingBackground(
+        child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                  ),
-                  child: SingleChildScrollView(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      padding: const EdgeInsets.all(24.0),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                      ),
+                      child: SingleChildScrollView(
                     child: Text(
                       '''Términos y Condiciones de Uso de Stadia
 
@@ -59,6 +69,8 @@ Bienvenido a Stadia. Al utilizar nuestra aplicación, aceptas los siguientes té
 
 Al continuar, confirmas que has leído y aceptas nuestra política de intermediación y limitación de responsabilidad.''',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
+                    ),
+                      ),
                     ),
                   ),
                 ),
@@ -92,6 +104,7 @@ Al continuar, confirmas que has leído y aceptas nuestra política de intermedia
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

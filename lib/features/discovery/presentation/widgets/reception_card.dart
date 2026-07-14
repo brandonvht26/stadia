@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../domain/entities/reception_entity.dart';
 import '../../../reservations/presentation/screens/booking_screen.dart';
@@ -124,102 +125,116 @@ class _ReceptionCardState extends State<ReceptionCard> {
           left: 0,
           right: 0,
           child: Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 32.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Título y Badge Verificado
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.reception.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          height: 1.1,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 32.0, top: 16.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Título y Badge Verificado
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              widget.reception.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                height: 1.1,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (widget.reception.isVerified)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 8.0),
+                              child: Icon(
+                                Icons.verified,
+                                color: Colors.blueAccent,
+                                size: 20,
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                    if (widget.reception.isVerified)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 8.0),
-                        child: Icon(
-                          Icons.verified,
-                          color: Colors.blueAccent,
-                          size: 20,
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                // Precio y Calificación
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                      // Precio y Calificación
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                            ),
+                            child: Text(
+                              '\$${widget.reception.basePrice.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          if (widget.reception.reviewsCount != null && widget.reception.reviewsCount! > 0 && widget.reception.avgRating != null) ...[
+                            const SizedBox(width: 12),
+                            const Icon(Icons.star, color: Colors.amber, size: 18),
+                            const SizedBox(width: 4),
+                            Text(
+                              widget.reception.avgRating!.toStringAsFixed(1),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                      child: Text(
-                        '\$${widget.reception.basePrice.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                    if (widget.reception.reviewsCount != null && widget.reception.reviewsCount! > 0 && widget.reception.avgRating != null) ...[
-                      const SizedBox(width: 12),
-                      const Icon(Icons.star, color: Colors.amber, size: 18),
-                      const SizedBox(width: 4),
-                      Text(
-                        widget.reception.avgRating!.toStringAsFixed(1),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
+                      const SizedBox(height: 14),
+
+                      // Ubicación (Solo coordenadas por ahora)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on,
+                            color: Colors.white70,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              _formatLocation(),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 14),
-
-                // Ubicación (Solo coordenadas por ahora)
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on,
-                      color: Colors.white70,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        _formatLocation(),
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -298,26 +313,33 @@ class _ReceptionCardState extends State<ReceptionCard> {
       behavior: HitTestBehavior.opaque,
       child: Column(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color ?? Colors.black.withValues(alpha: 0.4),
-              shape: BoxShape.circle,
-              boxShadow: color != null
-                  ? const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: color ?? Colors.white.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color != null ? Colors.transparent : Colors.white.withOpacity(0.2)),
+                  boxShadow: color != null
+                      ? const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 4),
@@ -443,19 +465,26 @@ class _AnimatedHeartButtonState extends State<_AnimatedHeartButton> with SingleT
       behavior: HitTestBehavior.opaque,
       child: Column(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.4),
-              shape: BoxShape.circle,
-            ),
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Icon(
-                widget.isLiked ? Icons.favorite : Icons.favorite_border,
-                color: widget.isLiked ? Colors.redAccent : Colors.white,
-                size: 24,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                ),
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Icon(
+                    widget.isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: widget.isLiked ? Colors.redAccent : Colors.white,
+                    size: 24,
+                  ),
+                ),
               ),
             ),
           ),

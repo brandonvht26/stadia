@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stadia/features/onboarding/presentation/screens/legal_terms_screen.dart';
+import '../widgets/onboarding_background.dart';
 
 class ContextScreen extends StatelessWidget {
   const ContextScreen({super.key});
@@ -7,10 +8,14 @@ class ContextScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: SafeArea(
+      body: OnboardingBackground(
+        child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
@@ -51,6 +56,7 @@ class ContextScreen extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

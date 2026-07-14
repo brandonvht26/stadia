@@ -107,8 +107,21 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                         decoration: BoxDecoration(
                           color: isMe 
                               ? Theme.of(context).colorScheme.primary 
-                              : (isDark ? Colors.grey[800] : Colors.grey[300]),
-                          borderRadius: BorderRadius.circular(16.0),
+                              : (isDark ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.surfaceContainerHighest),
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(20),
+                            topRight: const Radius.circular(20),
+                            bottomLeft: Radius.circular(isMe ? 20 : 4),
+                            bottomRight: Radius.circular(isMe ? 4 : 20),
+                          ),
+                          boxShadow: [
+                            if (!isDark)
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                          ],
                         ),
                         child: Column(
                           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -147,37 +160,49 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                 ),
               SafeArea(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  color: Theme.of(context).colorScheme.surface,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _messageController,
-                          decoration: InputDecoration(
-                            hintText: 'Escribe un mensaje...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(24.0),
-                              borderSide: BorderSide.none,
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0, bottom: 16.0),
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    elevation: 4,
+                    shadowColor: Colors.black.withOpacity(0.05),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _messageController,
+                              decoration: const InputDecoration(
+                                hintText: 'Escribe un mensaje...',
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                filled: false,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                              ),
+                              onSubmitted: (_) => _sendMessage(provider),
                             ),
-                            filled: true,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                           ),
-                          onSubmitted: (_) => _sendMessage(provider),
-                        ),
+                          const SizedBox(width: 8.0),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onPrimary),
+                              onPressed: () => _sendMessage(provider),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8.0),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onPrimary),
-                          onPressed: () => _sendMessage(provider),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

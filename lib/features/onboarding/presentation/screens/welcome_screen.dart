@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stadia/features/onboarding/presentation/screens/context_screen.dart';
+import '../widgets/onboarding_background.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -7,7 +8,9 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: OnboardingBackground(
+        child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
@@ -42,6 +45,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),
