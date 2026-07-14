@@ -1,7 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import '../../data/repositories/reservations_repository_impl.dart';
 import 'payment_success_screen.dart';
+import '../../../../features/onboarding/presentation/widgets/onboarding_background.dart';
 
 class PaymentScreen extends StatefulWidget {
   final String reservationId;
@@ -99,57 +101,176 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  Widget _buildGlassContainer(BuildContext context, {required Widget child}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: Color.alphaBlend(
+              colorScheme.primary.withOpacity(0.05),
+              colorScheme.surface.withOpacity(0.7),
+            ),
+            border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pago de Reserva'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Ingresa los datos de tu tarjeta',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            
-            // CardField proporcionado por flutter_stripe
-            CardField(
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2.0),
-                ),
-              ),
-              onCardChanged: (card) {
-                // Opcional: manejar validación del form
-              },
-            ),
-            const SizedBox(height: 32),
-            
-            if (_isLoadingIntent)
-              const Center(child: CircularProgressIndicator())
-            else
-              ElevatedButton(
-                onPressed: _isProcessingPayment ? null : _handlePayment,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isProcessingPayment
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        'Pagar \$${widget.amount.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 16),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return OnboardingBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Pago de Reserva', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(
+                    Icons.lock_outline,
+                    size: 64,
+                    color: Colors.white70,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Pago Seguro',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Total a pagar: \$${widget.amount.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  _buildGlassContainer(
+                    context,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Ingresa los datos de tu tarjeta',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface.withOpacity(0.9),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // CardField proporcionado por flutter_stripe
+                        CardField(
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: colorScheme.surface.withOpacity(0.5),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: colorScheme.outlineVariant.withOpacity(0.5),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: colorScheme.outlineVariant.withOpacity(0.5),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: colorScheme.primary, 
+                                width: 2.0
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.all(16),
+                          ),
+                          onCardChanged: (card) {
+                            // Opcional: manejar validación del form
+                          },
+                          style: TextStyle(color: colorScheme.onSurface),
+                        ),
+                        const SizedBox(height: 32),
+                        
+                        if (_isLoadingIntent)
+                          const Center(
+                            child: CircularProgressIndicator()
+                          )
+                        else
+                          SizedBox(
+                            height: 56,
+                            child: FilledButton(
+                              onPressed: _isProcessingPayment ? null : _handlePayment,
+                              style: FilledButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: _isProcessingPayment
+                                  ? SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colorScheme.onPrimary,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Pagar \$${widget.amount.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 18, 
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shield, color: Colors.white.withOpacity(0.5), size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Tus datos están encriptados',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 12,
+                        ),
                       ),
+                    ],
+                  ),
+                ],
               ),
-          ],
+            ),
+          ),
         ),
       ),
     );

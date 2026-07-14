@@ -121,7 +121,7 @@ class _ReceptionCardState extends State<ReceptionCard> {
 
         // 4 y 5. Contenido (Información) y Botones Laterales
         Positioned(
-          bottom: 32,
+          bottom: 16 + MediaQuery.of(context).padding.bottom,
           left: 16,
           right: 12,
           child: Row(

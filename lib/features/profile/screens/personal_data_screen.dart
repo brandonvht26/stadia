@@ -1,13 +1,14 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stadia/core/utils/ecuador_validators.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:stadia/core/widgets/stadia_scaffold.dart';
 import 'package:provider/provider.dart';
 import 'package:stadia/core/providers/user_provider.dart';
 import 'package:stadia/core/widgets/protected_route.dart';
+import '../../../../features/onboarding/presentation/widgets/onboarding_background.dart';
 
 // TODO: Refactorizar paddings fijos a AppSpacing.scaled(context, AppSpacing.md) cuando se generalice el escalado a todo el proyecto.
 
@@ -54,7 +55,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
 
     try {
       final userId = Supabase.instance.client.auth.currentUser!.id;
-      final filePath = '$userId/avatar.jpg';
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filePath = '$userId/avatar_$timestamp.jpg';
 
       await Supabase.instance.client.storage
           .from('avatars')
@@ -68,8 +70,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
           .from('avatars')
           .getPublicUrl(filePath);
 
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final newAvatarUrl = '$publicUrl?t=$timestamp';
+      final newAvatarUrl = publicUrl;
 
       if (mounted) {
         await context.read<UserProvider>().updateProfile({'avatar_url': newAvatarUrl});
@@ -144,21 +145,27 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     }
   }
 
-  InputDecoration _buildInputDecoration(String label) {
+  InputDecoration _buildInputDecoration(String label, ColorScheme colorScheme) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.black54),
-      focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black, width: 2),
+      filled: true,
+      fillColor: colorScheme.surface.withOpacity(0.5),
+      labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+        borderRadius: BorderRadius.circular(12),
       ),
-      enabledBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black26),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(12),
       ),
-      errorBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
+      errorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: colorScheme.error),
+        borderRadius: BorderRadius.circular(12),
       ),
-      focusedErrorBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black, width: 2),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: colorScheme.error, width: 2),
+        borderRadius: BorderRadius.circular(12),
       ),
     );
   }
@@ -167,13 +174,17 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
     final profile = userProvider.profile;
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (userProvider.isLoading || profile == null) {
       return const ProtectedRoute(
-        child: StadiaScaffold(
-          title: 'Datos Personales',
-          body: Center(
-            child: CircularProgressIndicator(color: Colors.black),
+        child: OnboardingBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: null,
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
           ),
         ),
       );
@@ -191,155 +202,172 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     final avatarUrl = profile['avatar_url'] as String?;
 
     return ProtectedRoute(
-      child: StadiaScaffold(
-        title: 'Datos Personales',
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    ClipOval(
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        color: Colors.grey[200],
-                        child: avatarUrl != null && avatarUrl.isNotEmpty
-                            ? Image.network(
-                                avatarUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.person, size: 50, color: Colors.grey);
-                                },
-                              )
-                            : const Icon(
-                                Icons.person,
-                                size: 50,
-                                color: Colors.grey,
+      child: OnboardingBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text('Datos Personales', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  padding: const EdgeInsets.all(24.0),
+                  decoration: BoxDecoration(
+                    color: Color.alphaBlend(
+                      colorScheme.primary.withOpacity(0.1),
+                      colorScheme.surface.withOpacity(0.85),
+                    ),
+                    border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            ClipOval(
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                color: colorScheme.surface.withOpacity(0.5),
+                                child: avatarUrl != null && avatarUrl.isNotEmpty
+                                    ? Image.network(
+                                        avatarUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Icon(Icons.person, size: 50, color: colorScheme.onSurface.withOpacity(0.5));
+                                        },
+                                      )
+                                    : Icon(
+                                        Icons.person,
+                                        size: 50,
+                                        color: colorScheme.onSurface.withOpacity(0.5),
+                                      ),
                               ),
-                      ),
-                    ),
-                    if (_isUploadingAvatar)
-                      const Positioned.fill(
-                        child: CircularProgressIndicator(color: Colors.black),
-                      ),
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                        onPressed: _isUploadingAvatar ? null : _pickAndUploadImage,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: _firstNameController,
-                  cursorColor: Colors.black,
-                  decoration: _buildInputDecoration('Nombre'),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZÀ-ÿñÑ ]'))],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) return 'Este campo es requerido';
-                    if (!RegExp(r'^[a-zA-ZÀ-ÿñÑ ]+$').hasMatch(value)) return 'Solo se permiten letras';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _lastNameController,
-                  cursorColor: Colors.black,
-                  decoration: _buildInputDecoration('Apellido'),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZÀ-ÿñÑ ]'))],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) return 'Este campo es requerido';
-                    if (!RegExp(r'^[a-zA-ZÀ-ÿñÑ ]+$').hasMatch(value)) return 'Solo se permiten letras';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.number,
-                  cursorColor: Colors.black,
-                  decoration: _buildInputDecoration('Teléfono'),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
-                  validator: (value) {
-                    if (value == null || value.length != 10) return 'El teléfono debe tener 10 dígitos';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _cedulaController,
-                  keyboardType: TextInputType.number,
-                  cursorColor: Colors.black,
-                  decoration: _buildInputDecoration('Cédula'),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
-                  validator: (value) {
-                    if (value == null || !esCedulaValida(value)) return 'Cédula inválida';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _bioController,
-                  maxLines: 3,
-                  maxLength: 50,
-                  cursorColor: Colors.black,
-                  decoration: _buildInputDecoration('Biografía'),
-                  inputFormatters: [LengthLimitingTextInputFormatter(50)],
-                  validator: (value) {
-                    if (value != null && value.length > 50) return 'Máximo 50 caracteres';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _isSaving ? null : _saveChanges,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: Colors.black54,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isSaving
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
                             ),
-                          )
-                        : const Text(
-                            'Guardar cambios',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
+                            if (_isUploadingAvatar)
+                              const Positioned.fill(
+                                child: CircularProgressIndicator(),
+                              ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                icon: Icon(Icons.camera_alt, color: colorScheme.onPrimary, size: 20),
+                                onPressed: _isUploadingAvatar ? null : _pickAndUploadImage,
+                              ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        TextFormField(
+                          controller: _firstNameController,
+                          decoration: _buildInputDecoration('Nombre', colorScheme),
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZÀ-ÿñÑ ]'))],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) return 'Este campo es requerido';
+                            if (!RegExp(r'^[a-zA-ZÀ-ÿñÑ ]+$').hasMatch(value)) return 'Solo se permiten letras';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _lastNameController,
+                          decoration: _buildInputDecoration('Apellido', colorScheme),
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZÀ-ÿñÑ ]'))],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) return 'Este campo es requerido';
+                            if (!RegExp(r'^[a-zA-ZÀ-ÿñÑ ]+$').hasMatch(value)) return 'Solo se permiten letras';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.number,
+                          decoration: _buildInputDecoration('Teléfono', colorScheme),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.length != 10) return 'El teléfono debe tener 10 dígitos';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _cedulaController,
+                          keyboardType: TextInputType.number,
+                          decoration: _buildInputDecoration('Cédula', colorScheme),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          validator: (value) {
+                            if (value == null || !esCedulaValida(value)) return 'Cédula inválida';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _bioController,
+                          maxLines: 3,
+                          maxLength: 50,
+                          decoration: _buildInputDecoration('Biografía', colorScheme),
+                          inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                          validator: (value) {
+                            if (value != null && value.length > 50) return 'Máximo 50 caracteres';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: _isSaving ? null : _saveChanges,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorScheme.primary,
+                              foregroundColor: colorScheme.onPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: _isSaving
+                                ? SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: colorScheme.onPrimary,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Guardar cambios',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                           ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
