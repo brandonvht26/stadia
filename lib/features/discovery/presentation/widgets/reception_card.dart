@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/reception_entity.dart';
 import '../../../reservations/presentation/screens/booking_screen.dart';
+import 'reception_reviews_sheet.dart';
 
 // Widget que renderiza una recepción a pantalla completa,
 // soportando un carrusel de imágenes horizontal.
@@ -130,9 +131,10 @@ class _ReceptionCardState extends State<ReceptionCard> {
               children: [
                 // Título y Badge Verificado
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Text(
                         widget.reception.title,
                         style: const TextStyle(
@@ -151,29 +153,47 @@ class _ReceptionCardState extends State<ReceptionCard> {
                         child: Icon(
                           Icons.verified,
                           color: Colors.blueAccent,
-                          size: 28,
+                          size: 20,
                         ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
-                // Precio
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-                  ),
-                  child: Text(
-                    '\$${widget.reception.basePrice.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                // Precio y Calificación
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        '\$${widget.reception.basePrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (widget.reception.reviewsCount != null && widget.reception.reviewsCount! > 0 && widget.reception.avgRating != null) ...[
+                      const SizedBox(width: 12),
+                      const Icon(Icons.star, color: Colors.amber, size: 18),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.reception.avgRating!.toStringAsFixed(1),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 14),
 
@@ -207,9 +227,10 @@ class _ReceptionCardState extends State<ReceptionCard> {
         // 5. Botones de Acción Laterales
         Positioned(
           right: 12,
-          bottom: 100,
+          bottom: 90,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Botón de Like
               _AnimatedHeartButton(
@@ -219,7 +240,10 @@ class _ReceptionCardState extends State<ReceptionCard> {
               ),
               const SizedBox(height: 16),
               // Botón de Reservar
-              GestureDetector(
+              _buildActionButton(
+                icon: Icons.calendar_month,
+                label: 'Reservar',
+                color: Colors.blueAccent,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -231,31 +255,82 @@ class _ReceptionCardState extends State<ReceptionCard> {
                     ),
                   );
                 },
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.blueAccent,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
+              ),
+              const SizedBox(height: 16),
+              // Botón de Reseñas
+              _buildActionButton(
+                icon: Icons.comment,
+                label: 'Comentarios',
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => DraggableScrollableSheet(
+                      initialChildSize: 0.6,
+                      minChildSize: 0.3,
+                      maxChildSize: 0.9,
+                      expand: false,
+                      builder: (context, scrollController) => ReceptionReviewsSheet(
+                        receptionId: widget.reception.id,
+                        totalReviews: widget.reception.reviewsCount ?? 0,
+                        scrollController: scrollController,
                       ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.calendar_month,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: color ?? Colors.black.withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+              boxShadow: color != null
+                  ? const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

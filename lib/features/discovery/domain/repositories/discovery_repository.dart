@@ -1,5 +1,6 @@
 import '../entities/reception_entity.dart';
 import '../entities/discovery_filters_entity.dart';
+import '../entities/review_with_user_entity.dart';
 
 // Puerto (interfaz) para el repositorio de Discovery en la capa de Dominio.
 // Define los contratos para la obtención de datos, aislados de la implementación.
@@ -21,4 +22,7 @@ abstract class DiscoveryRepository {
 
   /// Quita el 'me gusta' de una recepción. Usa el usuario actualmente autenticado.
   Future<void> unlikeReception(String receptionId);
+
+  /// Obtiene las reseñas de una recepción ordenadas por fecha descendente
+  Future<List<ReviewWithUserEntity>> getReceptionReviews(String receptionId);
 }

@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/reception_entity.dart';
 import '../../domain/entities/discovery_filters_entity.dart';
+import '../../domain/entities/review_with_user_entity.dart';
 import '../../domain/repositories/discovery_repository.dart';
 import '../models/reception_model.dart';
 
@@ -186,5 +187,21 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
         .from('favorites')
         .delete()
         .match({'user_id': currentUserId, 'reception_id': receptionId});
+  }
+
+  @override
+  Future<List<ReviewWithUserEntity>> getReceptionReviews(String receptionId) async {
+    try {
+      final response = await _supabaseClient
+          .from('reviews')
+          .select('rating, comment, created_at, profiles(first_name, last_name)')
+          .eq('reception_id', receptionId)
+          .order('created_at', ascending: false);
+
+      final List<dynamic> data = response;
+      return data.map((json) => ReviewWithUserEntity.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Error al obtener las reseñas: $e');
+    }
   }
 }
