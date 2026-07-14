@@ -137,7 +137,7 @@ class _VerificationPaymentScreenState extends State<VerificationPaymentScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Text(
-                        'Pagar \$20.00',
+                        'Pagar \$5.00',
                         style: TextStyle(fontSize: 16),
                       ),
               ),

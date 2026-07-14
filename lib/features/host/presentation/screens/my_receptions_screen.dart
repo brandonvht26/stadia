@@ -10,28 +10,8 @@ import '../../../profile/screens/personal_data_screen.dart';
 class MyReceptionsScreen extends StatefulWidget {
   const MyReceptionsScreen({super.key});
 
-  @override
-  State<MyReceptionsScreen> createState() => _MyReceptionsScreenState();
-}
-
-class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
-  final HostRepositoryImpl _repository = HostRepositoryImpl();
-  late Future<List<ReceptionEntity>> _receptionsFuture;
-  final Set<String> _deletingIds = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loadReceptions();
-  }
-
-  void _loadReceptions() {
-    setState(() {
-      _receptionsFuture = _repository.getMyReceptions();
-    });
-  }
-
-  Future<void> _onCreateReceptionPressed(BuildContext context) async {
+  static Future<void> handleCreateReception(BuildContext context, VoidCallback onCreated) async {
+    final repository = HostRepositoryImpl();
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -39,7 +19,7 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
     );
 
     try {
-      final status = await _repository.checkHostRequirements();
+      final status = await repository.checkHostRequirements();
       if (!context.mounted) return;
       Navigator.pop(context); // pop loading
 
@@ -49,7 +29,7 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
           MaterialPageRoute(builder: (_) => const CreateReceptionScreen()),
         );
         if (result == true) {
-          _loadReceptions();
+          onCreated();
         }
       } else {
         String message = '';
@@ -102,6 +82,29 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
   }
 
   @override
+  State<MyReceptionsScreen> createState() => _MyReceptionsScreenState();
+}
+
+class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
+  final HostRepositoryImpl _repository = HostRepositoryImpl();
+  late Future<List<ReceptionEntity>> _receptionsFuture;
+  final Set<String> _deletingIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReceptions();
+  }
+
+  void _loadReceptions() {
+    setState(() {
+      _receptionsFuture = _repository.getMyReceptions();
+    });
+  }
+
+
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ReceptionEntity>>(
       future: _receptionsFuture,
@@ -111,7 +114,6 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false,
             title: const Text('Mis Recepciones'),
           ),
           body: Builder(
@@ -131,7 +133,7 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
                       const Text('Aún no has publicado ninguna recepción.'),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => _onCreateReceptionPressed(context),
+                        onPressed: () => MyReceptionsScreen.handleCreateReception(context, _loadReceptions),
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(200, 44),
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -214,7 +216,7 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
                                         minimumSize: const Size(0, 36),
                                       ),
                                       child: const Text(
-                                        'Verificar \$20',
+                                        'Verificar \$5',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(fontSize: 13),
@@ -323,7 +325,7 @@ class _MyReceptionsScreenState extends State<MyReceptionsScreen> {
       ),
       floatingActionButton: hasReceptions
               ? FloatingActionButton(
-                  onPressed: () => _onCreateReceptionPressed(context),
+                  onPressed: () => MyReceptionsScreen.handleCreateReception(context, _loadReceptions),
                   child: const Icon(Icons.add),
                 )
               : null,

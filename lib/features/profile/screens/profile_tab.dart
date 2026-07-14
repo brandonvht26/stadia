@@ -9,6 +9,7 @@ import '../../settings/screens/settings_screen.dart';
 import '../../host/presentation/screens/bank_account_screen.dart';
 import '../../host/presentation/screens/create_reception_screen.dart';
 import '../../host/presentation/screens/manage_photos_screen.dart';
+import '../../host/presentation/screens/my_receptions_screen.dart';
 import '../providers/profile_stats_provider.dart';
 import 'package:stadia/core/theme/app_spacing.dart';
 
@@ -288,14 +289,50 @@ class _ProfileTabContent extends StatelessWidget {
               SizedBox(height: AppSpacing.scaled(context, AppSpacing.xl)),
 
               // 4. Recepciones
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'RECEPCIONES',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'RECEPCIONES',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MyReceptionsScreen()),
+                      ).then((_) => statsProvider.loadStats());
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text('Ver todas', style: TextStyle(fontSize: 12)),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    MyReceptionsScreen.handleCreateReception(
+                      context,
+                      () => statsProvider.loadStats(),
+                    );
+                  },
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Crear recepción'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               if (statsProvider.isLoading)
                 const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()))
               else if (statsProvider.myReceptions.isEmpty)
@@ -306,20 +343,6 @@ class _ProfileTabContent extends StatelessWidget {
                       Icon(Icons.storefront, size: 48, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
                       const SizedBox(height: 16),
                       Text('No has creado recepciones', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const CreateReceptionScreen()),
-                          ).then((_) => statsProvider.loadStats());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          textStyle: const TextStyle(fontSize: 12),
-                        ),
-                        child: const Text('Crear recepción'),
-                      ),
                     ],
                   ),
                 )

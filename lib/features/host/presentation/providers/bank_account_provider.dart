@@ -79,6 +79,7 @@ class BankAccountProvider extends ChangeNotifier {
         accountType: accountType,
       );
 
+      await loadBankAccount();
       _isSaving = false;
       notifyListeners();
       return true;

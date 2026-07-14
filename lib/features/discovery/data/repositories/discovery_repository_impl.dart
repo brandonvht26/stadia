@@ -52,7 +52,26 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
           .from('receptions_with_rating')
           .select('*, reception_media(media_url, order_index), services(name)');
 
-      // 1. Filtrado por servicios
+      // 1. Filtrado por "Solo me gustan" (Favoritos)
+      if (filters != null && filters.onlyLiked) {
+        final userId = _supabaseClient.auth.currentUser?.id;
+        if (userId == null) return [];
+        
+        final favResponse = await _supabaseClient
+            .from('favorites')
+            .select('reception_id')
+            .eq('user_id', userId);
+            
+        final List<dynamic> favData = favResponse;
+        if (favData.isEmpty) {
+          return []; // Si no hay favoritos y el filtro está activo, retornar vacío
+        }
+        
+        final favIds = favData.map((e) => e['reception_id'] as String).toList();
+        query = query.inFilter('id', favIds);
+      }
+
+      // 1.5. Filtrado por servicios
       if (filters != null && filters.selectedServices.isNotEmpty) {
         final srvResponse = await _supabaseClient
             .from('services')
@@ -68,7 +87,7 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
         query = query.inFilter('id', matchedReceptionIds);
       }
 
-      // 2. Filtros de precio y rating
+      // 2. Filtros de precio, rating, verificación y likes
       if (filters != null) {
         if (filters.minPrice != null) {
           query = query.gte('base_price', filters.minPrice!);
@@ -78,6 +97,15 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
         }
         if (filters.minRating != null) {
           query = query.gte('avg_rating', filters.minRating!);
+        }
+        if (filters.isVerified != null) {
+          query = query.eq('is_verified', filters.isVerified!);
+        }
+        if (filters.minLikes != null) {
+          query = query.gte('likes_count', filters.minLikes!);
+        }
+        if (filters.maxLikes != null) {
+          query = query.lte('likes_count', filters.maxLikes!);
         }
       }
 

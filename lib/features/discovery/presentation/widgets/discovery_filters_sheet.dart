@@ -15,9 +15,15 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
   double? _minRating;
   double? _maxDistanceKm;
   final Set<String> _selectedServices = {};
+  bool? _isVerified;
+  int? _minLikes;
+  int? _maxLikes;
+  bool _onlyLiked = false;
 
   final double _absMinPrice = 0.0;
   final double _absMaxPrice = 5000.0; // O un límite realista según la DB
+  final double _absMinLikes = 0.0;
+  final double _absMaxLikes = 500.0;
 
   @override
   void initState() {
@@ -28,6 +34,10 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
     _minRating = currentFilters.minRating;
     _maxDistanceKm = currentFilters.maxDistanceKm;
     _selectedServices.addAll(currentFilters.selectedServices);
+    _isVerified = currentFilters.isVerified;
+    _minLikes = currentFilters.minLikes;
+    _maxLikes = currentFilters.maxLikes;
+    _onlyLiked = currentFilters.onlyLiked;
   }
 
   void _applyFilters() {
@@ -44,6 +54,13 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
       maxDistanceKm: _maxDistanceKm,
       clearMaxDistanceKm: _maxDistanceKm == null,
       selectedServices: _selectedServices.toList(),
+      isVerified: _isVerified,
+      clearIsVerified: _isVerified == null,
+      minLikes: _minLikes != null && _minLikes! > _absMinLikes ? _minLikes : null,
+      clearMinLikes: _minLikes == null || _minLikes! <= _absMinLikes,
+      maxLikes: _maxLikes != null && _maxLikes! < _absMaxLikes ? _maxLikes : null,
+      clearMaxLikes: _maxLikes == null || _maxLikes! >= _absMaxLikes,
+      onlyLiked: _onlyLiked,
     );
 
     provider.updateFilters(newFilters);
@@ -126,6 +143,122 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
                     _maxPrice = values.end;
                   });
                 },
+              ),
+              const SizedBox(height: 24),
+
+              // Verificación
+              Text(
+                'Verificación',
+                style: textTheme.titleSmall,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12.0,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Todos'),
+                    selected: _isVerified == null,
+                    selectedColor: colorScheme.primary.withOpacity(0.12),
+                    backgroundColor: colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: _isVerified == null ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: _isVerified == null ? colorScheme.primary : colorScheme.onSurface,
+                      fontWeight: _isVerified == null ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    showCheckmark: false,
+                    onSelected: (selected) {
+                      if (selected) setState(() => _isVerified = null);
+                    },
+                  ),
+                  ChoiceChip(
+                    label: const Text('Solo verificados'),
+                    selected: _isVerified == true,
+                    selectedColor: colorScheme.primary.withOpacity(0.12),
+                    backgroundColor: colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: _isVerified == true ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: _isVerified == true ? colorScheme.primary : colorScheme.onSurface,
+                      fontWeight: _isVerified == true ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    showCheckmark: false,
+                    onSelected: (selected) {
+                      if (selected) setState(() => _isVerified = true);
+                    },
+                  ),
+                  ChoiceChip(
+                    label: const Text('Solo no verificados'),
+                    selected: _isVerified == false,
+                    selectedColor: colorScheme.primary.withOpacity(0.12),
+                    backgroundColor: colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: _isVerified == false ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.08),
+                      ),
+                    ),
+                    labelStyle: TextStyle(
+                      color: _isVerified == false ? colorScheme.primary : colorScheme.onSurface,
+                      fontWeight: _isVerified == false ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    showCheckmark: false,
+                    onSelected: (selected) {
+                      if (selected) setState(() => _isVerified = false);
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Likes
+              Text(
+                'Likes',
+                style: textTheme.titleSmall,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('${_minLikes ?? _absMinLikes.toInt()}', style: textTheme.bodyMedium),
+                  Text('${_maxLikes ?? _absMaxLikes.toInt()}', style: textTheme.bodyMedium),
+                ],
+              ),
+              RangeSlider(
+                values: RangeValues((_minLikes ?? _absMinLikes.toInt()).toDouble(), (_maxLikes ?? _absMaxLikes.toInt()).toDouble()),
+                min: _absMinLikes,
+                max: _absMaxLikes,
+                divisions: 50,
+                activeColor: colorScheme.primary,
+                inactiveColor: colorScheme.primary.withOpacity(0.2),
+                onChanged: (values) {
+                  setState(() {
+                    _minLikes = values.start.toInt();
+                    _maxLikes = values.end.toInt();
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // Favoritos
+              SwitchListTile(
+                title: Text('Solo mostrar los que me gustan', style: textTheme.titleSmall),
+                value: _onlyLiked,
+                onChanged: (val) {
+                  setState(() {
+                    _onlyLiked = val;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+                activeColor: colorScheme.primary,
               ),
               const SizedBox(height: 24),
 

@@ -19,7 +19,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
   final List<Widget> _tabs = [
     const DiscoveryScreen(),
     MyReservationsScreen.route(),
-    const MyReceptionsScreen(),
     InboxScreen.route(),
     const ProfileTab(),
   ];
@@ -53,11 +52,6 @@ class _LobbyScreenState extends State<LobbyScreen> {
               icon: Icon(Icons.calendar_month_outlined),
               activeIcon: Icon(Icons.calendar_month),
               label: 'Reservas',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.storefront_outlined),
-              activeIcon: Icon(Icons.storefront),
-              label: 'Host',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.chat_bubble_outline),

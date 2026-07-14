@@ -12,7 +12,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const VERIFICATION_FEE_USD = 20.00; // Monto fijo, definido en el backend, nunca en el cliente
+const VERIFICATION_FEE_USD = 5.00; // Monto fijo, definido en el backend, nunca en el cliente
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
