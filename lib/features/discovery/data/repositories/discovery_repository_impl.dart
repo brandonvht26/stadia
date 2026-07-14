@@ -102,12 +102,6 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
         if (filters.isVerified != null) {
           query = query.eq('is_verified', filters.isVerified!);
         }
-        if (filters.minLikes != null) {
-          query = query.gte('likes_count', filters.minLikes!);
-        }
-        if (filters.maxLikes != null) {
-          query = query.lte('likes_count', filters.maxLikes!);
-        }
       }
 
       // 3. Búsqueda por texto (título o nombre de host)
@@ -132,10 +126,14 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
       }
 
       // 4. Ordenamiento por defecto y paginación
-      final response = await query
-          .order('is_verified', ascending: false)
-          .order('created_at', ascending: false)
-          .range(from, to);
+      PostgrestTransformBuilder transformQuery;
+      if (filters != null && filters.sortByPopularity) {
+        transformQuery = query.order('likes_count', ascending: false).order('is_verified', ascending: false);
+      } else {
+        transformQuery = query.order('is_verified', ascending: false).order('created_at', ascending: false);
+      }
+      
+      final response = await transformQuery.range(from, to);
 
       final List<dynamic> data = response;
       

@@ -7,8 +7,7 @@ class DiscoveryFiltersEntity {
   final double? maxDistanceKm; // Radio de búsqueda geoespacial en kilómetros
   final List<String> selectedServices;
   final bool? isVerified;
-  final int? minLikes;
-  final int? maxLikes;
+  final bool sortByPopularity;
   final bool onlyLiked;
 
   const DiscoveryFiltersEntity({
@@ -19,8 +18,7 @@ class DiscoveryFiltersEntity {
     this.maxDistanceKm,
     this.selectedServices = const [],
     this.isVerified,
-    this.minLikes,
-    this.maxLikes,
+    this.sortByPopularity = false,
     this.onlyLiked = false,
   });
 
@@ -32,8 +30,7 @@ class DiscoveryFiltersEntity {
     double? maxDistanceKm,
     List<String>? selectedServices,
     bool? isVerified,
-    int? minLikes,
-    int? maxLikes,
+    bool? sortByPopularity,
     bool? onlyLiked,
     bool clearSearchQuery = false,
     bool clearMinPrice = false,
@@ -41,8 +38,7 @@ class DiscoveryFiltersEntity {
     bool clearMinRating = false,
     bool clearMaxDistanceKm = false,
     bool clearIsVerified = false,
-    bool clearMinLikes = false,
-    bool clearMaxLikes = false,
+    bool clearSortByPopularity = false,
   }) {
     return DiscoveryFiltersEntity(
       searchQuery: clearSearchQuery ? null : (searchQuery ?? this.searchQuery),
@@ -52,8 +48,7 @@ class DiscoveryFiltersEntity {
       maxDistanceKm: clearMaxDistanceKm ? null : (maxDistanceKm ?? this.maxDistanceKm),
       selectedServices: selectedServices ?? this.selectedServices,
       isVerified: clearIsVerified ? null : (isVerified ?? this.isVerified),
-      minLikes: clearMinLikes ? null : (minLikes ?? this.minLikes),
-      maxLikes: clearMaxLikes ? null : (maxLikes ?? this.maxLikes),
+      sortByPopularity: clearSortByPopularity ? false : (sortByPopularity ?? this.sortByPopularity),
       onlyLiked: onlyLiked ?? this.onlyLiked,
     );
   }
@@ -66,7 +61,6 @@ class DiscoveryFiltersEntity {
       maxDistanceKm != null ||
       selectedServices.isNotEmpty ||
       isVerified != null ||
-      minLikes != null ||
-      maxLikes != null ||
+      sortByPopularity ||
       onlyLiked;
 }

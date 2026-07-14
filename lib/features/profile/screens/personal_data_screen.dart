@@ -72,7 +72,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       final newAvatarUrl = '$publicUrl?t=$timestamp';
 
       if (mounted) {
-        context.read<UserProvider>().updateAvatarUrl(newAvatarUrl);
+        await context.read<UserProvider>().updateProfile({'avatar_url': newAvatarUrl});
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Avatar actualizado correctamente'),

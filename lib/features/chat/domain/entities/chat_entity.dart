@@ -3,6 +3,7 @@ class ChatEntity {
   final String receptionId;
   final String receptionTitle;
   final String otherParticipantName;
+  final String? otherParticipantAvatarUrl;
   final DateTime lastMessageAt;
   final int unreadCount;
 
@@ -11,6 +12,7 @@ class ChatEntity {
     required this.receptionId,
     required this.receptionTitle,
     required this.otherParticipantName,
+    this.otherParticipantAvatarUrl,
     required this.lastMessageAt,
     required this.unreadCount,
   });
@@ -20,6 +22,7 @@ class ChatEntity {
     String? receptionId,
     String? receptionTitle,
     String? otherParticipantName,
+    String? otherParticipantAvatarUrl,
     DateTime? lastMessageAt,
     int? unreadCount,
   }) {
@@ -28,6 +31,7 @@ class ChatEntity {
       receptionId: receptionId ?? this.receptionId,
       receptionTitle: receptionTitle ?? this.receptionTitle,
       otherParticipantName: otherParticipantName ?? this.otherParticipantName,
+      otherParticipantAvatarUrl: otherParticipantAvatarUrl ?? this.otherParticipantAvatarUrl,
       lastMessageAt: lastMessageAt ?? this.lastMessageAt,
       unreadCount: unreadCount ?? this.unreadCount,
     );

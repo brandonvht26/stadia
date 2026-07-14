@@ -49,8 +49,8 @@ class ChatRepositoryImpl implements ChatRepository {
         .select('''
           *,
           receptions(title),
-          host_profile:profiles!chats_host_id_fkey(first_name, last_name),
-          user_profile:profiles!chats_user_id_fkey(first_name, last_name),
+          host_profile:profiles!chats_host_id_fkey(first_name, last_name, avatar_url),
+          user_profile:profiles!chats_user_id_fkey(first_name, last_name, avatar_url),
           messages(sender_id, is_read)
         ''')
         .or('user_id.eq.$userId,host_id.eq.$userId')

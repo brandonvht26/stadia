@@ -41,7 +41,7 @@ class _ReceptionReviewsSheetState extends State<ReceptionReviewsSheet> {
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           decoration: BoxDecoration(
-            color: colorScheme.surface.withOpacity(0.85),
+            color: Color.alphaBlend(colorScheme.primary.withValues(alpha: 0.1), colorScheme.surface.withValues(alpha: 0.85)),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: SafeArea(

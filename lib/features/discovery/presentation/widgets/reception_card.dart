@@ -119,181 +119,187 @@ class _ReceptionCardState extends State<ReceptionCard> {
             ),
           ),
 
-        // 4. Contenido (Información de la Recepción)
+        // 4 y 5. Contenido (Información) y Botones Laterales
         Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 32.0, top: 16.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Título y Badge Verificado
-                      Row(
+          bottom: 32,
+          left: 16,
+          right: 12,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Panel de Información
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Color.alphaBlend(
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                          Colors.black.withValues(alpha: 0.3),
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white.withOpacity(0.2)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Flexible(
-                            child: Text(
-                              widget.reception.title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                height: 1.1,
+                          // Título y Badge Verificado
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  widget.reception.title,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.1,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                              if (widget.reception.isVerified)
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 8.0),
+                                  child: Icon(
+                                    Icons.verified,
+                                    color: Colors.blueAccent,
+                                    size: 20,
+                                  ),
+                                ),
+                            ],
                           ),
-                          if (widget.reception.isVerified)
-                            const Padding(
-                              padding: EdgeInsets.only(left: 8.0),
-                              child: Icon(
-                                Icons.verified,
-                                color: Colors.blueAccent,
+                          const SizedBox(height: 12),
+
+                          // Precio y Calificación
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                                ),
+                                child: Text(
+                                  '\$${widget.reception.basePrice.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              if (widget.reception.reviewsCount != null && widget.reception.reviewsCount! > 0 && widget.reception.avgRating != null) ...[
+                                const SizedBox(width: 12),
+                                const Icon(Icons.star, color: Colors.amber, size: 18),
+                                const SizedBox(width: 4),
+                                Text(
+                                  widget.reception.avgRating!.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Ubicación (Solo coordenadas por ahora)
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                color: Colors.white70,
                                 size: 20,
                               ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Precio y Calificación
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-                            ),
-                            child: Text(
-                              '\$${widget.reception.basePrice.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  _formatLocation(),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ),
-                          if (widget.reception.reviewsCount != null && widget.reception.reviewsCount! > 0 && widget.reception.avgRating != null) ...[
-                            const SizedBox(width: 12),
-                            const Icon(Icons.star, color: Colors.amber, size: 18),
-                            const SizedBox(width: 4),
-                            Text(
-                              widget.reception.avgRating!.toStringAsFixed(1),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Ubicación (Solo coordenadas por ahora)
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: Colors.white70,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              _formatLocation(),
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
-
-        // 5. Botones de Acción Laterales
-        Positioned(
-          right: 12,
-          bottom: 90,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Botón de Like
-              _AnimatedHeartButton(
-                isLiked: widget.reception.isLikedByUser,
-                likesCount: widget.reception.likesCount,
-                onTap: widget.onLikeToggle,
-              ),
-              const SizedBox(height: 16),
-              // Botón de Reservar
-              _buildActionButton(
-                icon: Icons.calendar_month,
-                label: 'Reservar',
-                color: Colors.blueAccent,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BookingScreen.route(
-                        receptionId: widget.reception.id,
-                        basePrice: widget.reception.basePrice,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              // Botón de Reseñas
-              _buildActionButton(
-                icon: Icons.comment,
-                label: 'Comentarios',
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => DraggableScrollableSheet(
-                      initialChildSize: 0.6,
-                      minChildSize: 0.3,
-                      maxChildSize: 0.9,
-                      expand: false,
-                      builder: (context, scrollController) => ReceptionReviewsSheet(
-                        receptionId: widget.reception.id,
-                        totalReviews: widget.reception.reviewsCount ?? 0,
-                        scrollController: scrollController,
-                      ),
-                    ),
-                  );
-                },
+              const SizedBox(width: 12),
+              
+              // Botones Laterales
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Botón de Like
+                  _AnimatedHeartButton(
+                    isLiked: widget.reception.isLikedByUser,
+                    likesCount: widget.reception.likesCount,
+                    onTap: widget.onLikeToggle,
+                  ),
+                  const SizedBox(height: 16),
+                  // Botón de Reservar
+                  _buildActionButton(
+                    icon: Icons.calendar_month,
+                    label: 'Reservar',
+                    color: Colors.blueAccent,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BookingScreen.route(
+                            receptionId: widget.reception.id,
+                            basePrice: widget.reception.basePrice,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  // Botón de Reseñas
+                  _buildActionButton(
+                    icon: Icons.comment,
+                    label: 'Comentarios',
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => DraggableScrollableSheet(
+                          initialChildSize: 0.6,
+                          minChildSize: 0.3,
+                          maxChildSize: 0.9,
+                          expand: false,
+                          builder: (context, scrollController) => ReceptionReviewsSheet(
+                            receptionId: widget.reception.id,
+                            totalReviews: widget.reception.reviewsCount ?? 0,
+                            scrollController: scrollController,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -308,6 +314,11 @@ class _ReceptionCardState extends State<ReceptionCard> {
     required VoidCallback onTap,
     Color? color,
   }) {
+    final primaryTint = Color.alphaBlend(
+      Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+      Colors.white.withValues(alpha: 0.15),
+    );
+    
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -321,7 +332,7 @@ class _ReceptionCardState extends State<ReceptionCard> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: color ?? Colors.white.withOpacity(0.15),
+                  color: color ?? primaryTint,
                   shape: BoxShape.circle,
                   border: Border.all(color: color != null ? Colors.transparent : Colors.white.withOpacity(0.2)),
                   boxShadow: color != null
@@ -460,6 +471,11 @@ class _AnimatedHeartButtonState extends State<_AnimatedHeartButton> with SingleT
 
   @override
   Widget build(BuildContext context) {
+    final primaryTint = Color.alphaBlend(
+      Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+      Colors.white.withValues(alpha: 0.15),
+    );
+
     return GestureDetector(
       onTap: widget.onTap,
       behavior: HitTestBehavior.opaque,
@@ -473,7 +489,7 @@ class _AnimatedHeartButtonState extends State<_AnimatedHeartButton> with SingleT
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: primaryTint,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),

@@ -6,6 +6,7 @@ class ChatModel extends ChatEntity {
     required super.receptionId,
     required super.receptionTitle,
     required super.otherParticipantName,
+    super.otherParticipantAvatarUrl,
     required super.lastMessageAt,
     required super.unreadCount,
   });
@@ -23,10 +24,14 @@ class ChatModel extends ChatEntity {
     final userProfile = json['user_profile'] as Map<String, dynamic>?;
     
     String otherName = 'Usuario Desconocido';
+    String? otherAvatarUrl;
+    
     if (isHost && userProfile != null) {
       otherName = '${userProfile['first_name']} ${userProfile['last_name']}';
+      otherAvatarUrl = userProfile['avatar_url'] as String?;
     } else if (!isHost && hostProfile != null) {
       otherName = '${hostProfile['first_name']} ${hostProfile['last_name']}';
+      otherAvatarUrl = hostProfile['avatar_url'] as String?;
     }
 
     final receptionData = json['receptions'] as Map<String, dynamic>?;
@@ -48,6 +53,7 @@ class ChatModel extends ChatEntity {
       receptionId: json['reception_id'] as String,
       receptionTitle: title,
       otherParticipantName: otherName,
+      otherParticipantAvatarUrl: otherAvatarUrl,
       lastMessageAt: DateTime.parse(json['last_message_at'].toString()),
       unreadCount: unreadCount,
     );

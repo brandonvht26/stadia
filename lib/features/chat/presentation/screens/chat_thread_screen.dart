@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../data/repositories/chat_repository_impl.dart';
 import '../providers/chat_thread_provider.dart';
+import '../../../../features/onboarding/presentation/widgets/onboarding_background.dart';
+import 'dart:ui';
 
 class ChatThreadScreen extends StatefulWidget {
   final String otherParticipantName;
@@ -68,11 +70,15 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.otherParticipantName),
-      ),
-      body: Consumer<ChatThreadProvider>(
+    return OnboardingBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(widget.otherParticipantName, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        body: Consumer<ChatThreadProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.messages.isEmpty) {
             return const Center(child: CircularProgressIndicator());
@@ -159,48 +165,58 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   ),
                 ),
               SafeArea(
-                child: Container(
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0, bottom: 16.0),
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: Card(
-                    margin: EdgeInsets.zero,
-                    elevation: 4,
-                    shadowColor: Colors.black.withOpacity(0.05),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _messageController,
-                              decoration: const InputDecoration(
-                                hintText: 'Escribe un mensaje...',
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                errorBorder: InputBorder.none,
-                                disabledBorder: InputBorder.none,
-                                filled: false,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                child: ClipRRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0, bottom: 16.0),
+                      decoration: BoxDecoration(
+                        color: Color.alphaBlend(
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                          Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+                        ),
+                        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1))),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _messageController,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Escribe un mensaje...',
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    errorBorder: InputBorder.none,
+                                    disabledBorder: InputBorder.none,
+                                    filled: false,
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                                  ),
+                                  onSubmitted: (_) => _sendMessage(provider),
+                                ),
                               ),
-                              onSubmitted: (_) => _sendMessage(provider),
-                            ),
+                              const SizedBox(width: 8.0),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onPrimary),
+                                  onPressed: () => _sendMessage(provider),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8.0),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onPrimary),
-                              onPressed: () => _sendMessage(provider),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -209,6 +225,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
             ],
           );
         },
+      ),
       ),
     );
   }

@@ -17,14 +17,11 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
   double? _maxDistanceKm;
   final Set<String> _selectedServices = {};
   bool? _isVerified;
-  int? _minLikes;
-  int? _maxLikes;
+  bool _sortByPopularity = false;
   bool _onlyLiked = false;
 
   final double _absMinPrice = 0.0;
   final double _absMaxPrice = 5000.0; // O un límite realista según la DB
-  final double _absMinLikes = 0.0;
-  final double _absMaxLikes = 500.0;
 
   @override
   void initState() {
@@ -36,8 +33,7 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
     _maxDistanceKm = currentFilters.maxDistanceKm;
     _selectedServices.addAll(currentFilters.selectedServices);
     _isVerified = currentFilters.isVerified;
-    _minLikes = currentFilters.minLikes;
-    _maxLikes = currentFilters.maxLikes;
+    _sortByPopularity = currentFilters.sortByPopularity;
     _onlyLiked = currentFilters.onlyLiked;
   }
 
@@ -57,10 +53,8 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
       selectedServices: _selectedServices.toList(),
       isVerified: _isVerified,
       clearIsVerified: _isVerified == null,
-      minLikes: _minLikes != null && _minLikes! > _absMinLikes ? _minLikes : null,
-      clearMinLikes: _minLikes == null || _minLikes! <= _absMinLikes,
-      maxLikes: _maxLikes != null && _maxLikes! < _absMaxLikes ? _maxLikes : null,
-      clearMaxLikes: _maxLikes == null || _maxLikes! >= _absMaxLikes,
+      sortByPopularity: _sortByPopularity,
+      clearSortByPopularity: !_sortByPopularity,
       onlyLiked: _onlyLiked,
     );
 
@@ -89,7 +83,7 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           decoration: BoxDecoration(
-            color: colorScheme.surface.withOpacity(0.85),
+            color: Color.alphaBlend(colorScheme.primary.withValues(alpha: 0.1), colorScheme.surface.withValues(alpha: 0.85)),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: SafeArea(
@@ -224,32 +218,17 @@ class _DiscoveryFiltersSheetState extends State<DiscoveryFiltersSheet> {
               ),
               const SizedBox(height: 24),
 
-              // Likes
-              Text(
-                'Likes',
-                style: textTheme.titleSmall,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${_minLikes ?? _absMinLikes.toInt()}', style: textTheme.bodyMedium),
-                  Text('${_maxLikes ?? _absMaxLikes.toInt()}', style: textTheme.bodyMedium),
-                ],
-              ),
-              RangeSlider(
-                values: RangeValues((_minLikes ?? _absMinLikes.toInt()).toDouble(), (_maxLikes ?? _absMaxLikes.toInt()).toDouble()),
-                min: _absMinLikes,
-                max: _absMaxLikes,
-                divisions: 50,
-                activeColor: colorScheme.primary,
-                inactiveColor: colorScheme.primary.withOpacity(0.2),
-                onChanged: (values) {
+              // Likes / Popularidad
+              SwitchListTile(
+                title: Text('Ordenar por los más populares', style: textTheme.titleSmall),
+                value: _sortByPopularity,
+                onChanged: (val) {
                   setState(() {
-                    _minLikes = values.start.toInt();
-                    _maxLikes = values.end.toInt();
+                    _sortByPopularity = val;
                   });
                 },
+                contentPadding: EdgeInsets.zero,
+                activeColor: colorScheme.primary,
               ),
               const SizedBox(height: 24),
 

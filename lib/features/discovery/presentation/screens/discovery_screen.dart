@@ -186,7 +186,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                             height: 48,
                             alignment: _isSearchExpanded ? Alignment.center : Alignment.centerLeft,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Color.alphaBlend(
+                                Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                                Colors.white.withValues(alpha: 0.15),
+                              ),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(color: Colors.white.withOpacity(0.2)),
                             ),
@@ -248,7 +251,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                             decoration: BoxDecoration(
                               color: provider.currentFilters.hasActiveFilters 
                                   ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
-                                  : Colors.white.withOpacity(0.15),
+                                  : Color.alphaBlend(
+                                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                                      Colors.white.withValues(alpha: 0.15),
+                                    ),
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: provider.currentFilters.hasActiveFilters
