@@ -6,6 +6,8 @@ import '../providers/my_reservations_provider.dart';
 import '../../../reviews/presentation/screens/review_screen.dart';
 import '../../../chat/data/repositories/chat_repository_impl.dart';
 import '../../../chat/presentation/screens/chat_thread_screen.dart';
+import '../../../../core/widgets/timed_confirmation_dialog.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyReservationsScreen extends StatefulWidget {
   const MyReservationsScreen({super.key});
@@ -138,6 +140,51 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                                 ),
                               ),
                             ),
+                            if (reservation.status == 'pending' || reservation.status == 'confirmed') ...[
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.cancel_outlined, color: Colors.red),
+                                tooltip: 'Cancelar reserva',
+                                onPressed: () async {
+                                  final confirmed = await showTimedConfirmationDialog(
+                                    context: context,
+                                    title: 'Cancelar reserva',
+                                    message: 'Estás a punto de cancelar esta reserva. Esta cancelación no te devolverá el dinero pagado.',
+                                    seconds: 5,
+                                  );
+                                  if (confirmed != true) return;
+                                  
+                                  try {
+                                    await provider.cancelReservation(reservation.id);
+                                    
+                                    try {
+                                      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+                                      if (currentUserId != null) {
+                                        debugPrint('--- Intentando limpiar chat ---');
+                                        debugPrint('Host ID de reserva a cancelar: ${reservation.hostId}');
+                                        debugPrint('Reception ID a cancelar: ${reservation.receptionId}');
+                                        
+                                        await ChatRepositoryImpl().deleteChatIfNoActiveReservations(
+                                          userId: currentUserId,
+                                          hostId: reservation.hostId,
+                                          receptionId: reservation.receptionId,
+                                        );
+                                      }
+                                    } catch (e) {
+                                      debugPrint('Error al limpiar chat huérfano: $e');
+                                    }
+                                    
+                                    provider.loadReservations();
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Error al cancelar: $e')),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
                           ],
                         ),
                         SizedBox(height: AppSpacing.scaled(context, AppSpacing.sm)),

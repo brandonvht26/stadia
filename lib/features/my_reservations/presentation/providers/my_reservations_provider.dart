@@ -30,4 +30,20 @@ class MyReservationsProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> cancelReservation(String reservationId) async {
+    try {
+      await _repository.cancelReservation(reservationId);
+      // Actualizamos el estado local
+      final index = _reservations.indexWhere((r) => r.id == reservationId);
+      if (index != -1) {
+        _reservations[index] = _reservations[index].copyWith(status: 'cancelled');
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      throw e;
+    }
+  }
 }

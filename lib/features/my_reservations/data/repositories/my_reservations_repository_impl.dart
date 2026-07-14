@@ -72,4 +72,21 @@ class MyReservationsRepositoryImpl implements MyReservationsRepository {
       throw Exception('Error al obtener mis reservas: $e');
     }
   }
+
+  @override
+  Future<void> cancelReservation(String reservationId) async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) {
+      throw Exception('Usuario no autenticado.');
+    }
+
+    try {
+      await _supabase
+          .from('reservations')
+          .update({'status': 'cancelled'})
+          .eq('id', reservationId);
+    } catch (e) {
+      throw Exception('Error al cancelar la reserva: $e');
+    }
+  }
 }

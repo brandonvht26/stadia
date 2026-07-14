@@ -19,4 +19,10 @@ abstract class ChatRepository {
   Future<void> markChatAsRead(String chatId);
 
   Stream<MessageEntity> subscribeToNewMessages(String chatId);
+
+  Future<void> deleteChatIfNoActiveReservations({
+    required String userId,
+    required String hostId,
+    required String receptionId,
+  });
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../../domain/entities/message_entity.dart';
@@ -134,5 +135,38 @@ class ChatRepositoryImpl implements ChatRepository {
     ).subscribe();
 
     return controller.stream;
+  }
+
+  @override
+  Future<void> deleteChatIfNoActiveReservations({
+    required String userId,
+    required String hostId,
+    required String receptionId,
+  }) async {
+    final response = await _supabase
+        .from('reservations')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('reception_id', receptionId)
+        .inFilter('status', ['pending', 'confirmed']);
+        
+    final List<dynamic> data = response as List<dynamic>;
+    
+    if (data.isEmpty) {
+      try {
+        await _supabase
+            .from('chats')
+            .delete()
+            .eq('user_id', userId)
+            .eq('host_id', hostId)
+            .eq('reception_id', receptionId);
+        debugPrint('Chat eliminado exitosamente por no tener reservas activas.');
+      } catch (e) {
+        debugPrint('Error al eliminar chat: $e');
+        rethrow; // Rethrow to let the caller know if needed, or swallow it since caller has a try/catch. I'll just swallow it as requested.
+      }
+    } else {
+      debugPrint('No se eliminó el chat, aún hay ${data.length} reservas activas.');
+    }
   }
 }

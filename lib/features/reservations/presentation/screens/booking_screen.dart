@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../data/repositories/reservations_repository_impl.dart';
 import '../providers/booking_provider.dart';
 import 'payment_screen.dart';
+import '../../../../core/widgets/timed_confirmation_dialog.dart';
 
 class BookingScreen extends StatefulWidget {
   final String receptionId;
@@ -170,22 +171,30 @@ class _BookingScreenState extends State<BookingScreen> {
                         child: ElevatedButton(
                           onPressed: (draft.eventDate == null || provider.isLoading)
                               ? null
-                              : () async {
-                                  final reservationId = await provider.confirmDraft();
-                                  if (reservationId != null) {
-                                    if (mounted) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => PaymentScreen(
-                                            reservationId: reservationId,
-                                            amount: draft.totalAmount,
+                                : () async {
+                                    final confirmed = await showTimedConfirmationDialog(
+                                      context: context,
+                                      title: 'Confirmar reserva',
+                                      message: 'Estás por hacer una reserva en este lugar. La decisión es definitiva: en caso de arrepentirte, no habrá reembolso del dinero.',
+                                      seconds: 10,
+                                    );
+                                    if (confirmed != true) return;
+
+                                    final reservationId = await provider.confirmDraft();
+                                    if (reservationId != null) {
+                                      if (mounted) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => PaymentScreen(
+                                              reservationId: reservationId,
+                                              amount: draft.totalAmount,
+                                            ),
                                           ),
-                                        ),
-                                      );
+                                        );
+                                      }
                                     }
-                                  }
-                                },
+                                  },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                           ),
