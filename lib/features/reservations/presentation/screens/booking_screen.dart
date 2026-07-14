@@ -31,6 +31,18 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
+  DateTime _firstAvailableDate(List<DateTime> reservedDates) {
+    DateTime candidate = DateTime.now();
+    final normalizedReserved = reservedDates.map((d) => 
+        DateTime(d.year, d.month, d.day)).toSet();
+    
+    while (normalizedReserved.contains(DateTime(candidate.year, candidate.month, 
+        candidate.day))) {
+      candidate = candidate.add(const Duration(days: 1));
+    }
+    return DateTime(candidate.year, candidate.month, candidate.day);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +107,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                     const SizedBox(height: 8),
                     CalendarDatePicker(
-                      initialDate: draft.eventDate ?? DateTime.now(),
+                      initialDate: draft.eventDate ?? _firstAvailableDate(provider.reservedDates),
                       firstDate: DateTime.now(),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
                       currentDate: draft.eventDate, // Resalta el seleccionado (requiere workaround si falla visualmente, pero initialDate/currentDate funcionan similar)
@@ -153,31 +165,34 @@ class _BookingScreenState extends State<BookingScreen> {
                           ),
                         ],
                       ),
-                      ElevatedButton(
-                        onPressed: (draft.eventDate == null || provider.isLoading)
-                            ? null
-                            : () async {
-                                final reservationId = await provider.confirmDraft();
-                                if (reservationId != null) {
-                                  if (mounted) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => PaymentScreen(
-                                          reservationId: reservationId,
-                                          amount: draft.totalAmount,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: (draft.eventDate == null || provider.isLoading)
+                              ? null
+                              : () async {
+                                  final reservationId = await provider.confirmDraft();
+                                  if (reservationId != null) {
+                                    if (mounted) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => PaymentScreen(
+                                            reservationId: reservationId,
+                                            amount: draft.totalAmount,
+                                          ),
                                         ),
-                                      ),
-                                    );
+                                      );
+                                    }
                                   }
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                                },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          ),
+                          child: provider.isLoading 
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                            : const Text('Continuar al pago'),
                         ),
-                        child: provider.isLoading 
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
-                          : const Text('Continuar al pago'),
                       ),
                     ],
                   ),

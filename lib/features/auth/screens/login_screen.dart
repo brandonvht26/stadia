@@ -5,6 +5,7 @@ import 'package:stadia/features/auth/screens/register_screen.dart';
 import 'package:stadia/features/auth/screens/reset_password_screen.dart';
 import 'package:stadia/core/services/push_notification_service.dart';
 import 'package:stadia/core/services/onboarding_service.dart';
+import 'package:stadia/core/auth_gate.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -36,12 +37,12 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await Supabase.instance.client.auth.signInWithPassword(
+      final authResponse = await Supabase.instance.client.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
       
-      final user = Supabase.instance.client.auth.currentUser;
+      final user = authResponse.user;
       if (user != null) {
         // ignore: unawaited_futures
         OnboardingService.syncTermsAccepted(user.id).catchError((e) {
@@ -54,6 +55,15 @@ class _LoginScreenState extends State<LoginScreen> {
       PushNotificationService().initialize().catchError((e) {
         debugPrint('Error al inicializar push notifications (no crítico): $e');
       });
+
+      if (authResponse.session != null) {
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const AuthGate()),
+            (route) => false,
+          );
+        }
+      }
     } on AuthException catch (e) {
       if (!mounted) return;
       String errorMessage = 'Ocurrió un error inesperado';

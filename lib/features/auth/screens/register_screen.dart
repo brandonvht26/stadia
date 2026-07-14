@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:stadia/core/services/onboarding_service.dart';
+import 'package:stadia/core/auth_gate.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -49,6 +50,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
       
       if (!mounted) return;
+      
+      if (response.session != null) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+          (route) => false,
+        );
+        return;
+      }
       
       // Mostrar diálogo de éxito
       await showDialog(

@@ -143,23 +143,22 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                         SizedBox(height: AppSpacing.scaled(context, AppSpacing.sm)),
                         Row(
                           children: [
-                            const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                            Icon(Icons.calendar_today, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                             const SizedBox(width: 8),
                             Text(
                               '${reservation.eventDate.day.toString().padLeft(2, '0')}/${reservation.eventDate.month.toString().padLeft(2, '0')}/${reservation.eventDate.year}',
-                              style: const TextStyle(color: Colors.black87),
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
                         ),
                         SizedBox(height: AppSpacing.scaled(context, AppSpacing.xs)),
                         Row(
                           children: [
-                            const Icon(Icons.attach_money, size: 16, color: Colors.grey),
+                            Icon(Icons.attach_money, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                             const SizedBox(width: 8),
                             Text(
                               reservation.totalAmount.toStringAsFixed(2),
-                              style: const TextStyle(
-                                color: Colors.black87,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -246,10 +245,6 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                               },
                               icon: const Icon(Icons.chat_bubble_outline),
                               label: const Text('Chatear con el host'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                                foregroundColor: Colors.white,
-                              ),
                             ),
                           ),
                         ],

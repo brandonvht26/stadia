@@ -97,6 +97,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                   itemBuilder: (context, index) {
                     final message = reversedMessages[index];
                     final isMe = message.senderId == _currentUserId;
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
 
                     return Align(
                       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -104,7 +105,9 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                         margin: const EdgeInsets.only(bottom: 8.0),
                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                         decoration: BoxDecoration(
-                          color: isMe ? Colors.blue : Colors.grey[300],
+                          color: isMe 
+                              ? Theme.of(context).colorScheme.primary 
+                              : (isDark ? Colors.grey[800] : Colors.grey[300]),
                           borderRadius: BorderRadius.circular(16.0),
                         ),
                         child: Column(
@@ -113,7 +116,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                             Text(
                               message.content,
                               style: TextStyle(
-                                color: isMe ? Colors.white : Colors.black87,
+                                color: isMe ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
                                 fontSize: 16.0,
                               ),
                             ),
@@ -121,7 +124,9 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                             Text(
                               DateFormat('HH:mm').format(message.createdAt.toLocal()),
                               style: TextStyle(
-                                color: isMe ? Colors.white70 : Colors.black54,
+                                color: isMe 
+                                    ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.7) 
+                                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                 fontSize: 10.0,
                               ),
                             ),
@@ -143,7 +148,7 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
               SafeArea(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   child: Row(
                     children: [
                       Expanded(
@@ -156,7 +161,6 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                               borderSide: BorderSide.none,
                             ),
                             filled: true,
-                            fillColor: Colors.grey[200],
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                           ),
                           onSubmitted: (_) => _sendMessage(provider),
@@ -164,12 +168,12 @@ class _ChatThreadScreenState extends State<ChatThreadScreen> {
                       ),
                       const SizedBox(width: 8.0),
                       Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.blue,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.send, color: Colors.white),
+                          icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onPrimary),
                           onPressed: () => _sendMessage(provider),
                         ),
                       ),

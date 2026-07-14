@@ -255,11 +255,22 @@ class _CreateReceptionViewState extends State<_CreateReceptionView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Servicios Extra', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Expanded(
+                        child: Text(
+                          'Servicios Extra',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       TextButton.icon(
                         onPressed: () => _showAddServiceDialog(context),
-                        icon: const Icon(Icons.add),
-                        label: const Text('Agregar'),
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('Agregar', maxLines: 1),
+                        ),
                       ),
                     ],
                   ),
@@ -292,12 +303,23 @@ class _CreateReceptionViewState extends State<_CreateReceptionView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Fotos de tu local (${provider.pendingPhotos.length}/5)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Expanded(
+                        child: Text(
+                          'Fotos de tu local (${provider.pendingPhotos.length}/5)',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       if (provider.pendingPhotos.length < 5)
                         TextButton.icon(
                           onPressed: () => _pickImage(context),
-                          icon: const Icon(Icons.add_a_photo),
-                          label: const Text('Agregar foto'),
+                          icon: const Icon(Icons.camera_alt, size: 16),
+                          label: const FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('Agregar', maxLines: 1),
+                          ),
                         )
                       else
                         const Padding(
