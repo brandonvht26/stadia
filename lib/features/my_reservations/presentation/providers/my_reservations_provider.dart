@@ -45,6 +45,7 @@ class MyReservationsProvider extends ChangeNotifier {
                   ? DateTime.tryParse(newRecord['reservation_date']) ?? existing.eventDate 
                   : existing.eventDate,
             );
+            _sortReservations();
             notifyListeners();
           }
         } else if (eventType == PostgresChangeEvent.delete) {
@@ -59,6 +60,24 @@ class MyReservationsProvider extends ChangeNotifier {
         }
       },
     ).subscribe();
+  }
+
+  int _statusPriority(String status) {
+    switch (status) {
+      case 'pending': return 0;
+      case 'confirmed': return 1;
+      case 'completed': return 2;
+      case 'cancelled': return 3;
+      default: return 4;
+    }
+  }
+
+  void _sortReservations() {
+    _reservations.sort((a, b) {
+      final statusCompare = _statusPriority(a.status).compareTo(_statusPriority(b.status));
+      if (statusCompare != 0) return statusCompare;
+      return b.eventDate.compareTo(a.eventDate);
+    });
   }
   List<ReservationEntity> _reservations = [];
   List<ReservationEntity> get reservations => _reservations;
@@ -76,6 +95,7 @@ class MyReservationsProvider extends ChangeNotifier {
 
     try {
       _reservations = await _repository.getMyReservations();
+      _sortReservations();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -91,6 +111,7 @@ class MyReservationsProvider extends ChangeNotifier {
       final index = _reservations.indexWhere((r) => r.id == reservationId);
       if (index != -1) {
         _reservations[index] = _reservations[index].copyWith(status: 'cancelled');
+        _sortReservations();
         notifyListeners();
       }
     } catch (e) {

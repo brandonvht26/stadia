@@ -195,12 +195,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                             ),
                             child: _isSearchExpanded
                                 ? TextField(
+                                    textAlignVertical: TextAlignVertical.center,
                                     controller: _searchController,
                                     onChanged: _onSearchChanged,
                                     autofocus: true,
                                     style: const TextStyle(color: Colors.white),
                                     decoration: InputDecoration(
-                                      hintText: 'Buscar locales o anfitriones...',
+                                      hintText: 'Buscar Locales',
                                       hintStyle: const TextStyle(color: Colors.white70),
                                       prefixIcon: const Icon(Icons.search, color: Colors.white),
                                       suffixIcon: IconButton(

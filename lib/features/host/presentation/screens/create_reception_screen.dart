@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/widgets/image_source_picker.dart';
+import '../../../../core/widgets/timed_confirmation_dialog.dart';
 import '../../data/repositories/host_repository_impl.dart';
 import '../providers/create_reception_provider.dart';
 import '../../../../features/onboarding/presentation/widgets/onboarding_background.dart';
@@ -37,6 +38,7 @@ class _CreateReceptionViewState extends State<_CreateReceptionView> {
   
   LatLng? _initialLocation;
   bool _isLoadingLocation = true;
+  bool _termsAccepted = false;
 
   @override
   void initState() {
@@ -138,6 +140,16 @@ class _CreateReceptionViewState extends State<_CreateReceptionView> {
         );
         return;
       }
+
+      final confirmed = await showTimedConfirmationDialog(
+        context: context,
+        title: 'Confirmar publicación',
+        message: 'Estás a punto de publicar esta recepción de forma pública. '
+            'Recuerda que eres responsable de la veracidad de la información y '
+            'de lo que ocurra durante los eventos realizados aquí.',
+        seconds: 5,
+      );
+      if (confirmed != true) return;
 
       final result = await provider.submit();
       
@@ -453,11 +465,38 @@ class _CreateReceptionViewState extends State<_CreateReceptionView> {
                       ),
                       
                     const SizedBox(height: 32),
+                    CheckboxListTile(
+                      value: _termsAccepted,
+                      onChanged: (value) => setState(() => _termsAccepted = value ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: Text(
+                        'Al publicar declaro que:',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          '• Soy el propietario legal de este lugar o cuento con autorización '
+                          'para publicarlo y ofrecerlo en Stadia.\n\n'
+                          '• Entiendo que Stadia retiene un 12% del monto de cada reserva '
+                          'realizada a través de esta recepción como comisión por el servicio.\n\n'
+                          '• Soy el único responsable de lo que ocurra durante los eventos '
+                          'realizados en este lugar. Stadia actúa únicamente como intermediario '
+                          'y no se hace responsable por actividades ilegales, daños, accidentes '
+                          'o conflictos que surjan durante el evento.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       height: 52,
                       child: FilledButton(
-                        onPressed: provider.isLoading ? null : _submitForm,
+                        onPressed: provider.isLoading || !_termsAccepted ? null : _submitForm,
                         style: FilledButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

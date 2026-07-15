@@ -53,6 +53,7 @@ class ManagePhotosProvider extends ChangeNotifier {
       await loadPhotos();
     } catch (e) {
       _error = e.toString();
+    } finally {
       _isSaving = false;
       notifyListeners();
     }
@@ -106,6 +107,7 @@ class ManagePhotosProvider extends ChangeNotifier {
       await loadPhotos();
     } catch (e) {
       _error = e.toString();
+    } finally {
       _isSaving = false;
       notifyListeners();
     }

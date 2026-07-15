@@ -3,10 +3,47 @@ import '../../discovery/domain/entities/reception_entity.dart';
 import '../../host/data/repositories/host_repository_impl.dart';
 import '../../my_reservations/data/repositories/my_reservations_repository_impl.dart';
 import '../../my_reservations/domain/entities/reservation_entity.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileStatsProvider extends ChangeNotifier {
   final HostRepositoryImpl _hostRepository = HostRepositoryImpl();
   final MyReservationsRepositoryImpl _reservationsRepository = MyReservationsRepositoryImpl();
+
+  RealtimeChannel? _likesChannel;
+
+  ProfileStatsProvider() {
+    _initRealtime();
+  }
+
+  void _initRealtime() {
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    if (currentUserId == null) return;
+    
+    _likesChannel = Supabase.instance.client.channel('profile-receptions-likes-$currentUserId');
+    _likesChannel!.onPostgresChanges(
+      event: PostgresChangeEvent.update,
+      schema: 'public',
+      table: 'receptions',
+      filter: PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'host_id',
+        value: currentUserId,
+      ),
+      callback: (payload) {
+        final newRecord = payload.newRecord;
+        final id = newRecord['id'];
+        final index = _myReceptions.indexWhere((r) => r.id == id);
+        
+        if (index != -1) {
+          final existing = _myReceptions[index];
+          _myReceptions[index] = existing.copyWith(
+            likesCount: newRecord['likes_count'] ?? existing.likesCount,
+          );
+          notifyListeners();
+        }
+      },
+    ).subscribe();
+  }
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -56,5 +93,13 @@ class ProfileStatsProvider extends ChangeNotifier {
     } catch (e) {
       return 'Miembro';
     }
+  }
+
+  @override
+  void dispose() {
+    if (_likesChannel != null) {
+      Supabase.instance.client.removeChannel(_likesChannel!);
+    }
+    super.dispose();
   }
 }
