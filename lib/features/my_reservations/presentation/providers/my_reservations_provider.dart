@@ -1,12 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/reservation_entity.dart';
 import '../../domain/repositories/my_reservations_repository.dart';
 
 class MyReservationsProvider extends ChangeNotifier {
   final MyReservationsRepository _repository;
 
-  MyReservationsProvider(this._repository);
+  MyReservationsProvider(this._repository) {
+    _initRealtime();
+  }
 
+  RealtimeChannel? _reservationsChannel;
+
+  void _initRealtime() {
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    if (currentUserId == null) return;
+    
+    final suffix = currentUserId;
+
+    _reservationsChannel = Supabase.instance.client.channel('my-reservations-live-$suffix');
+    _reservationsChannel!.onPostgresChanges(
+      event: PostgresChangeEvent.all,
+      schema: 'public',
+      table: 'reservations',
+      filter: PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'user_id',
+        value: currentUserId,
+      ),
+      callback: (payload) {
+        final eventType = payload.eventType;
+        
+        if (eventType == PostgresChangeEvent.update) {
+          final newRecord = payload.newRecord;
+          final id = newRecord['id'];
+          final index = _reservations.indexWhere((r) => r.id == id);
+          
+          if (index != -1) {
+            final existing = _reservations[index];
+            _reservations[index] = existing.copyWith(
+              status: newRecord['status'] ?? existing.status,
+              totalAmount: (newRecord['total_price'] as num?)?.toDouble() ?? existing.totalAmount,
+              eventDate: newRecord['reservation_date'] != null 
+                  ? DateTime.tryParse(newRecord['reservation_date']) ?? existing.eventDate 
+                  : existing.eventDate,
+            );
+            notifyListeners();
+          }
+        } else if (eventType == PostgresChangeEvent.delete) {
+          final id = payload.oldRecord['id'];
+          _reservations.removeWhere((r) => r.id == id);
+          notifyListeners();
+        } else if (eventType == PostgresChangeEvent.insert) {
+          // Since an INSERT might miss joined data (like reception details),
+          // it's safer to just reload the list, or we could add a basic entity if we had all fields.
+          // For now we just trigger a reload to get the full joined data.
+          loadReservations();
+        }
+      },
+    ).subscribe();
+  }
   List<ReservationEntity> _reservations = [];
   List<ReservationEntity> get reservations => _reservations;
 
@@ -54,5 +107,13 @@ class MyReservationsProvider extends ChangeNotifier {
     } catch (e) {
       throw e;
     }
+  }
+
+  @override
+  void dispose() {
+    if (_reservationsChannel != null) {
+      Supabase.instance.client.removeChannel(_reservationsChannel!);
+    }
+    super.dispose();
   }
 }

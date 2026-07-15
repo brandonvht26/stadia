@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/review_with_user_entity.dart';
 import '../../data/repositories/discovery_repository_impl.dart';
 
@@ -21,12 +22,98 @@ class ReceptionReviewsSheet extends StatefulWidget {
 
 class _ReceptionReviewsSheetState extends State<ReceptionReviewsSheet> {
   final DiscoveryRepositoryImpl _repository = DiscoveryRepositoryImpl();
-  late Future<List<ReviewWithUserEntity>> _reviewsFuture;
+  List<ReviewWithUserEntity> _reviews = [];
+  bool _isLoading = true;
+  String? _error;
+  RealtimeChannel? _reviewsChannel;
 
   @override
   void initState() {
     super.initState();
-    _reviewsFuture = _repository.getReceptionReviews(widget.receptionId);
+    _loadReviews();
+    _initRealtime();
+  }
+
+  Future<void> _loadReviews() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final reviews = await _repository.getReceptionReviews(widget.receptionId);
+      if (!mounted) return;
+      setState(() {
+        _reviews = reviews;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _initRealtime() {
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final suffix = currentUserId ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+    _reviewsChannel = Supabase.instance.client.channel('reception-reviews-live-${widget.receptionId}-$suffix');
+    _reviewsChannel!.onPostgresChanges(
+      event: PostgresChangeEvent.insert,
+      schema: 'public',
+      table: 'reviews',
+      filter: PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'reception_id',
+        value: widget.receptionId,
+      ),
+      callback: (payload) async {
+        if (!mounted) return;
+        final newRecord = payload.newRecord;
+        final reviewId = newRecord['id'];
+        
+        try {
+          // Fetch the specific review with its JOINs
+          final data = await Supabase.instance.client
+              .from('reviews')
+              .select('*, profiles(first_name, last_name, avatar_url)')
+              .eq('id', reviewId)
+              .single();
+              
+          if (!mounted) return;
+          
+          final profile = data['profiles'];
+          final firstName = profile['first_name'] ?? '';
+          final lastName = profile['last_name'] ?? '';
+          final userName = '$firstName $lastName'.trim();
+          
+          final newReview = ReviewWithUserEntity(
+            userName: userName.isEmpty ? 'Usuario Desconocido' : userName,
+            rating: (data['rating'] as num).toDouble(),
+            comment: data['comment'],
+            createdAt: DateTime.parse(data['created_at']),
+          );
+
+          setState(() {
+            _reviews.insert(0, newReview);
+          });
+        } catch (e) {
+          debugPrint('Error fetching specific review for realtime: $e');
+        }
+      },
+    ).subscribe();
+  }
+
+  @override
+  void dispose() {
+    if (_reviewsChannel != null) {
+      Supabase.instance.client.removeChannel(_reviewsChannel!);
+    }
+    super.dispose();
   }
 
   @override
@@ -68,17 +155,16 @@ class _ReceptionReviewsSheetState extends State<ReceptionReviewsSheet> {
               Divider(color: colorScheme.onSurface.withOpacity(0.08)),
 
               Flexible(
-                child: FutureBuilder<List<ReviewWithUserEntity>>(
-                  future: _reviewsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                child: Builder(
+                  builder: (context) {
+                    if (_isLoading) {
                       return const Padding(
                         padding: EdgeInsets.all(32.0),
                         child: Center(child: CircularProgressIndicator()),
                       );
                     }
 
-                    if (snapshot.hasError) {
+                    if (_error != null) {
                       return Padding(
                         padding: const EdgeInsets.all(32.0),
                         child: Center(
@@ -90,9 +176,7 @@ class _ReceptionReviewsSheetState extends State<ReceptionReviewsSheet> {
                       );
                     }
 
-                    final reviews = snapshot.data ?? [];
-
-                    if (reviews.isEmpty) {
+                    if (_reviews.isEmpty) {
                       return Padding(
                         padding: const EdgeInsets.all(32.0),
                         child: Center(
@@ -120,13 +204,13 @@ class _ReceptionReviewsSheetState extends State<ReceptionReviewsSheet> {
                     return ListView.separated(
                       controller: widget.scrollController,
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      itemCount: reviews.length,
+                      itemCount: _reviews.length,
                       separatorBuilder: (context, index) => Divider(
                         color: colorScheme.onSurface.withOpacity(0.05),
                         height: 32,
                       ),
                       itemBuilder: (context, index) {
-                        final review = reviews[index];
+                        final review = _reviews[index];
                         return _buildReviewCard(review, colorScheme, textTheme);
                       },
                     );
